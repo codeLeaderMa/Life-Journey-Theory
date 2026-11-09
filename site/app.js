@@ -860,7 +860,7 @@
   function shareText(p, ty) {
     return `我的人生型格：${ty.era}·${ty.name}（${ty.key.toUpperCase()} / 32型）\n` +
       `定位：${sname(p.stage)} × ${cname(p.cls)}\n箴言：${ty.motto}\n` +
-      `—— 阶层×生命历程理论图谱 (397理论·726关系)`;
+      `—— 阶层×生命历程理论图谱 (413理论·782关系)`;
   }
   const SITE_URL = "https://lifejourneywiththeory.netlify.app";
   function drawQR(x, url, cx, top, box, fg) {
