@@ -485,7 +485,7 @@
         <span class="badge dim">${rels.length} 条关系</span>
       </div>
       <div class="meta">提出：${esc(t.scholar)} <button class="wiki-btn mini" id="nd-wiki-s" title="查学者的维基条目">↗</button> · ${esc(t.work)}${t.year ? " (" + esc(t.year) + ")" : ""}${CITES[t.id] ? " · 被引 " + CITES[t.id].toLocaleString() : ""}</div>
-      <div class="body">${esc(t.core)}</div>
+      <div class="body core-line">${esc(t.core)}</div>
       ${t.ref ? `<div class="refs">⌁ ${esc(t.ref)}</div>` : ""}
       ${linNodes.length > 1 ? `<div class="rel"><div class="expand-toggle" id="lin-t"><span>${linLabel} (${linNodes.length})</span><span class="arrow">▸</span></div>
         <div class="expand-body lin-box" id="lin-b">${linNodes.map((n) =>
