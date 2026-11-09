@@ -123,9 +123,11 @@
     adj[e.f].n.add(e.t); adj[e.t].n.add(e.f); adj[e.f].l.add(i); adj[e.t].l.add(i);
   });
 
-  /* 主线骨干：位于 ≥3 节点 genealogy/produces 长链上、或为 ≥3 度谱系枢纽的节点 */
+  /* 谱系边类型：传承(genealogy)+衍生(produces)+落地为方法(operationalizes) 都算知识血脉 */
+  const LIN_TYPES = new Set(["genealogy", "produces", "operationalizes"]);
+  /* 主线骨干：位于 ≥3 节点谱系长链上、或为 ≥3 度谱系枢纽的节点 */
   const BACKBONE = (() => {
-    const ch = DB.edges.filter((e) => e.type === "genealogy" || e.type === "produces");
+    const ch = DB.edges.filter((e) => LIN_TYPES.has(e.type));
     const out = {}, inn = {}, deg = {};
     ch.forEach((e) => {
       (out[e.f] = out[e.f] || []).push(e.t); (inn[e.t] = inn[e.t] || []).push(e.f);
@@ -142,14 +144,18 @@
     });
     return set;
   })();
-  let mainline = BACKBONE.size > 0;             // 預設主線視圖（點雲先給脈絡，不給毛線球）
-  function setMainline(on) {
-    mainline = on;
-    $$("#graph-toolbar [data-view2]").forEach((x) => x.classList.toggle("on", (x.dataset.view2 === "main") === on));
+  /* 极简核心：按「使用度」综合分（被引+格位+连接）取 60 个地标理论——先看懂地标再逛街 */
+  const CORE = new Set([...DB.theories].sort((a, b) => nodeR(b) - nodeR(a)).slice(0, 60).map((t) => t.id));
+  /* 三档视图：core 核心枢纽 | main 谱系主线 | all 全部点云 */
+  let viewMode = "core";
+  const viewSet = () => (viewMode === "main" ? BACKBONE : viewMode === "core" ? CORE : null);
+  function setView(m) {
+    viewMode = m;
+    $$("#graph-toolbar [data-view2]").forEach((x) => x.classList.toggle("on", x.dataset.view2 === m));
     refreshData(); applyColors();
     if (fg) { fg.cooldownTicks(160); if (fg.d3ReheatSimulation) fg.d3ReheatSimulation(); }
   }
-  function ensureInView(id) { if (mainline && id && !BACKBONE.has(id)) setMainline(false); }
+  function ensureInView(id) { const s = viewSet(); if (s && id && !s.has(id)) setView("all"); }
 
   function baseColor(n) {
     if (colorMode === "school" || (colorMode === "cell" && lit && lit.has(n.id))) return scol(n.t.school);
@@ -210,25 +216,26 @@
       const dim = litMode === "dim" && lit && !lit.has(n.id);
       m.material.color.set(dim ? "#232a35" : baseColor(n));
       m.material.opacity = dim ? 0.22 : 1;
-      const want = (labelOn || mainline) ? !dim : !!(lit && lit.has(n.id));
+      const want = (labelOn || viewMode !== "all") ? !dim : !!(lit && lit.has(n.id));
       if (want && !s) { s = makeSprite(n); n.__s = s; n.__g.add(s); }
       if (s) {
-        const lod = !mainline || nearZoom || (lit && lit.has(n.id)) || nodeR(n.t) >= 4.2;
+        const lod = viewMode === "all" || nearZoom || (lit && lit.has(n.id)) || nodeR(n.t) >= 4.2;
         s.visible = want && lod;
-        s.textHeight = s.__h * (mainline ? 2.4 : 1);
+        s.textHeight = s.__h * (viewMode !== "all" ? 2.4 : 1);
         s.color = colorMode === "disc" ? "#c9d1d9" : baseColor(n);
       }
     });
   }
   function refreshData() {
     if (!fg) return;
+    const vs = viewSet();
     const nodes = gNodes.filter((n) => activeDisc.has(n.t.disc) &&
-      (!mainline || BACKBONE.has(n.id)) &&
+      (!vs || vs.has(n.id)) &&
       (litMode !== "hide" || !lit || lit.has(n.id)));
     const ok = new Set(nodes.map((n) => n.id));
     fg.graphData({ nodes, links: gLinks.filter((l) => ok.has(sid(l.source)) && ok.has(sid(l.target)) &&
       activeEdge.has(l.e.type) && (!l.e.ev || activeEv.has(l.e.ev)) &&
-      (!mainline || l.e.type === "genealogy" || l.e.type === "produces")) });
+      (viewMode === "all" || LIN_TYPES.has(l.e.type) || (viewMode === "core" && l.e.type === "tension"))) });
   }
   function clearLit() {
     lit = null; litLinks = null; syncLitFromMode(); refreshData(); applyColors();
@@ -258,8 +265,9 @@
       `<div style="display:flex;justify-content:space-between;align-items:center"><div class="gt-lbl" style="margin:0">图控</div><button class="fbtn" id="tb-hide">隐藏 ▾</button></div>` +
       `<div><input id="g-search" placeholder="搜理论/学者/谱系(中英)…" style="${inSt}"><div id="g-results"></div></div>` +
       `<div><div class="gt-lbl">视图</div><div class="gt-row">` +
-        `<button class="fbtn${mainline ? " on" : ""}" data-view2="main" title="只显示谱系长链上的骨干理论">主线 ${BACKBONE.size}</button>` +
-        `<button class="fbtn${mainline ? "" : " on"}" data-view2="all" title="显示全部理论节点">全部 ${DB.theories.length}</button>` +
+        `<button class="fbtn${viewMode === "core" ? " on" : ""}" data-view2="core" title="连接最密的 60 个枢纽理论——先看懂地标">核心 ${CORE.size}</button>` +
+        `<button class="fbtn${viewMode === "main" ? " on" : ""}" data-view2="main" title="谱系长链上的骨干理论——理论传承脉络">主线 ${BACKBONE.size}</button>` +
+        `<button class="fbtn${viewMode === "all" ? " on" : ""}" data-view2="all" title="显示全部理论节点">全部 ${DB.theories.length}</button>` +
       `</div></div>` +
       `<div><div class="gt-lbl">着色</div><div class="gt-row">` +
         `<button class="fbtn on" data-mode="disc">学科</button>` +
@@ -284,11 +292,11 @@
         `<select id="lit-mode"><option value="dim">淡化</option><option value="hide">隐藏</option><option value="off">正常</option></select>` +
       `</div></div>`;
 
-    $$("[data-view2]", tb).forEach((b) => b.addEventListener("click", () => setMainline(b.dataset.view2 === "main")));
+    $$("[data-view2]", tb).forEach((b) => b.addEventListener("click", () => setView(b.dataset.view2)));
     $$("[data-mode]", tb).forEach((b) => b.addEventListener("click", () => {
       $$("[data-mode]", tb).forEach((x) => x.classList.toggle("on", x === b));
       colorMode = b.dataset.mode;
-      if (colorMode === "cell") setMainline(false);
+      if (colorMode === "cell") setView("all");
       $("#cell-sel").style.display = colorMode === "cell" ? "" : "none";
       lit = null; litLinks = null; syncLitFromMode(); refreshData(); applyColors();
     }));
@@ -407,7 +415,7 @@
         fg.cooldownTicks(0); // 之後的篩選/點選不再重新加熱佈局，節點不漂移
       });
     setInterval(() => {
-      if (!fg || (!mainline && nearZoom)) return;
+      if (!fg || (viewMode === "all" && nearZoom)) return;
       const cp = fg.cameraPosition(), tg = fg.controls ? fg.controls().target : null;
       const d = tg ? Math.hypot(cp.x - tg.x, cp.y - tg.y, cp.z - tg.z) : Math.hypot(cp.x, cp.y, cp.z);
       const nz = d < 520;
@@ -1014,7 +1022,7 @@
     });
     $("#rep-graph").addEventListener("click", () => {
       const top = new Set(ranked.slice(0, 30).map((r) => r.t.id));
-      if (mainline) setMainline(false);
+      setView("all");
       goView("graph");
       lit = top;
       litLinks = new Set(); DB.edges.forEach((e, i) => { if (top.has(e.f) && top.has(e.t)) litLinks.add(i); });
