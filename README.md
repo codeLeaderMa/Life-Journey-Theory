@@ -1,7 +1,40 @@
-# CLASS × LIFECOURSE — 社会阶层与生命周期的跨学科耦合模型
+# CLASS × LIFECOURSE — 阶层 × 生命历程
 
-互动式知识图谱：4 个生命阶段 × 3 个社会阶层 = 12 个矩阵单元格，
-背后是 **397 个理论节点、726 条带类型与证据等级的边**。全部界面与内容为简体中文。
+**一张帮你自我定位的理论地图 · A theory map that helps you locate yourself**
+
+[![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/demo-netlify-orange.svg)](https://lifejourneywiththeory.netlify.app)
+
+## 简介 · About
+
+**中文**
+
+很多「卡住」，不是你不够好，是结构在起作用。
+
+这是一个交互式知识图谱产品：答一份会随年龄自适应的小问卷，它会把你放进
+**4 个人生阶段 × 3 种阶层处境**的矩阵里，告诉你——此刻站在什么位置、
+是什么在塑造你、哪里可能松动。背后是来自社会学、心理学、经济学、人类学等
+9 个学科的 **397 个理论节点**与 **726 条带类型和证据等级的关系边**，
+从弗洛伊德、布迪厄到格兰诺维特，都可以在 3D 图谱里点开、追谱系、查维基、看对立观点。
+测完还能解锁 32 种「人生型格」之一，生成分享卡发给朋友。
+
+**English**
+
+A lot of what feels like being "stuck" isn't personal failure — it's structure at work.
+
+This is an interactive knowledge-graph product: answer a short, age-adaptive
+questionnaire and it places you inside a matrix of **4 life stages × 3 class
+positions**, then shows you where you stand, what is shaping you, and where
+things might still move. Behind it are **397 theory nodes** and **726 typed,
+evidence-graded edges** drawn from 9 disciplines — sociology, psychology,
+economics, anthropology and more. Every theory — Freud, Bourdieu, Granovetter —
+can be clicked open in a 3D graph, traced through its lineage, checked against
+Wikipedia, and read alongside its critics. Finish the quiz to unlock one of 32
+"Life Archetypes" and a shareable card. The UI is in Simplified Chinese.
+
+**在线体验 · Live**: https://lifejourneywiththeory.netlify.app
+
+---
 
 ## 两种打开方式
 
@@ -73,7 +106,7 @@ hash 直连：`/#matrix`、`/#graph`、`/#graph:节点id`、`/#deep`、`/#bounds
 - **暖色治愈系色板**：light 默认 = 米白纸底 + 赭石主色；dark = 暖炭棕 + 杏色。
   标题用衬线（Songti/Noto Serif）拉人文感，正文系统 sans，mono 仅用于 ID/统计
 - 导航最右 `◐` 切换明暗，记忆于 localStorage；3D 画布与图控面板固定暖深色
-- 封面 hero 用 **Trianglify**（`lib/trianglify.min.js`，MIT）生成暖色三角网格，
+- 封面 hero 用 **Trianglify**（`lib/trianglify.min.js`，GPLv3）生成暖色三角网格，
   随主题切换重绘，seed 固定保证一致性
 - **进入页**：首次打开显示全屏 cover（trianglify 底 + 悬浮光斑 + 衬线标题），
   「推开这扇门」CTA 穿门动画进入问卷；「主线论述」「边界与局限」
@@ -92,7 +125,7 @@ hash 直连：`/#matrix`、`/#graph`、`/#graph:节点id`、`/#deep`、`/#bounds
 | `citations.js` | OpenAlex 被引数（仅收录人工核对过的可靠匹配） |
 | `build_dist.py` | 单文件打包脚本 |
 | `dist/class-lifecourse-matrix.html` | 打包产物（勿手改） |
-| `lib/` | 3d-force-graph 1.80.2、three.core/module r179、three-spritetext、pico.min.css 2.0.6、trianglify 4.1.1（MIT/BSD） |
+| `lib/` | 3d-force-graph 1.80.2 (MIT)、three.core/module r179 (MIT)、three-spritetext (MIT)、pico.min.css 2.0.6 (MIT)、trianglify 4.1.1 (**GPLv3**)、qrcode-generator 1.4.4 (MIT) |
 | `fetch_citations*.py` | OpenAlex 引文抓取脚本（有速率限制，见下） |
 
 ## 资料 schema
