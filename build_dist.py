@@ -83,7 +83,7 @@ def build():
     parts = [three, clean_js(read("lib/three-spritetext.min.js")), clean_js(read("lib/3d-force-graph.min.js")),
              clean_js(read("lib/trianglify.min.js")), clean_js(read("lib/qrcode.min.js"))]
     for f in ["mascots.js", "nodes_soc.js", "nodes_dev.js", "nodes_econ.js", "nodes_psy.js", "nodes_pol.js",
-              "nodes_exi.js", "nodes_anth.js", "nodes_bio.js", "nodes_fam.js",
+              "nodes_exi.js", "nodes_anth.js", "nodes_bio.js", "nodes_fam.js", "nodes_new_c.js",
               "citations.js", "data.js", "app.js"]:
         parts.append(clean_js(read(f)))
     bundle = "\n".join(f"<script>\n{p}\n</script>" for p in parts)
@@ -107,7 +107,7 @@ def build():
 SITE_FILES = [
     "index.html", "app.js", "data.js", "citations.js", "mascots.js",
     "nodes_soc.js", "nodes_dev.js", "nodes_econ.js", "nodes_psy.js", "nodes_pol.js",
-    "nodes_exi.js", "nodes_anth.js", "nodes_bio.js", "nodes_fam.js",
+    "nodes_exi.js", "nodes_anth.js", "nodes_bio.js", "nodes_fam.js", "nodes_new_c.js",
     "lib/pico.min.css", "lib/trianglify.min.js", "lib/qrcode.min.js",
     "lib/three.module.min.js", "lib/three.core.min.js",
     "lib/three-spritetext.min.js", "lib/3d-force-graph.min.js",

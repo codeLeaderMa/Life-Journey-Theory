@@ -489,6 +489,7 @@
       <i style="border-color:var(--c-produces)"></i>产出·衍生
       <i style="border-color:#8a8578;border-top-style:dotted"></i>操作化·落地
       <span style="margin-left:14px">彩色点 = 理论 · 点的颜色 = 学科 · 拖动旋转 / 滚轮缩放</span>
+      <span style="margin-left:14px">默认显示<b style="color:var(--txt-hi)">主线</b>（骨干谱系链）· 图控里可切到全部理论</span>
     </div>
     <div class="graph-wrap">
       <div style="position:relative;min-height:0">
@@ -504,6 +505,7 @@
   <section id="view-data" class="view"><div id="json-view"></div></section>
   <div class="footer">MODEL: class-lifecourse-matrix · generated corpus verifiable against cited literature · visualization: 3d-force-graph (MIT) · avatars: Humaaans by Pablo Stanley (free) · cover: Trianglify (GPLv3)</div>
 </main>
+
 
 
 
@@ -4425,6 +4427,28 @@ window.DB_NODES.push(
 
 </script>
 <script>
+/* 扩充批C：精英侧机制（位置竞争/俱乐部撤离/同质婚配/杂食品味/玻璃地板）
+   + 晚年理论群（撤离/活动/连续/生命回顾/代际团结/第三龄/现代化老化/制度化生命历程） */
+window.DB_NODES = window.DB_NODES || [];
+window.DB_NODES.push(
+// ── 精英侧：位置竞争与撤离 ──
+{id:"hirsch_positional",aka:"赫希 位置性商品 地位商品 社会增长的极限",stages:["s2","s3","s4"],classes:["c2","c3"],domains:["money","mobility","meaning"],lever:1,cn:"位置性商品/社会增长的极限",en:"Positional Goods",scholar:"Fred Hirsch",work:"Social Limits to Growth",year:"1976",disc:"econ",school:"宏观不平等",core:"有些东西的价值来自稀缺本身（学位、职位、好地段）——人人增产≠人人得到，竞争升级只是军备竞赛。",detail:"Hirsch 把商品分成两类：物质财（面包、汽车，增产就满足）与位置财（名校学位、管理职、安静地段，价值内建于「你没有」）。位置财供给不随收入增长扩张——人人都更有钱，顶层 10% 的位子还是 10%。于是增长撞上「社会极限」：教育膨胀只抬高文凭通胀，不是人人向上而是人人都得更用力跑才能留在原地。这把 Veblen 的炫耀消费数学化了：位置竞争不是虚荣病，是结构性零和——军备竞赛的参与者没人想停，但人人都累。图谱中它以谱系边接自「有闲阶级论」——炫耀是位置竞争的原始形态；耦合「俱乐部财」与「成功者撤离」——排他机制与物理撤离是位置防御的两条执行线。边界：位置/物质二分在数字时代变模糊（线上位置财可无限复制？），且它诊断的是竞赛结构，对个人给出的出口其实是认知性的——看清零和后可以选择换赛道，但换赛道本身也是位置操作。",links:[{t:"Harvard UP《Social Limits to Growth》",u:"https://www.hup.harvard.edu/books/9780674813000"}]},
+{id:"glass_floor",aka:"里维斯 玻璃地板 下行保护",stages:["s2","s3","s4"],classes:["c2","c3"],domains:["mobility","money"],lever:1,cn:"玻璃地板/下行保护",en:"Glass Floor",scholar:"Richard Reeves",work:"How to Stop the Best and Brightest...",year:"2015",disc:"soc",school:"精英研究",core:"资源厚的家庭在孩子表现平庸时也能托住——不平等不只加固天花板，也封死地板。",detail:"Reeves 继机会囤积之后补了下半句：上中产囤的不只是上升通道，还有下坠时的安全网。表现平平的精英子弟照样进好大学、拿好实习——补习补出来的分数、人脉递进来的简历、失败后的二次三次机会、随时可回的婚房与启动资金，构成一块看不见但跌不穿的玻璃地板。它的残酷在于让「择优」叙事完好无损：平庸的赢家被记成逆袭，真正的跌落只发生在没有地板的人身上。实证侧，英国与美国数据都显示认知能力低分位的高 SES 孩子最终收入依然偏高。图谱中它以产出边接自「机会囤积」——同一作者的机制翻面；耦合「位置性商品」——地板正是位置财的家庭版兑现。边界：命名是把双刃剑——「玻璃地板」让隐蔽机制可见可议，但也容易被读成对个体努力的否定；且它解释的是托底而非上限，对真正的精英复制机制作解释力弱于机会囤积本身。",links:[{t:"Brookings 玻璃地板专题",u:"https://www.brookings.edu/articles/glass-floors-and-glass-ceilings/"}]},
+{id:"club_theory",aka:"布坎南 俱乐部财 俱乐部理论 会员制排他",stages:["s2","s3","s4"],classes:["c3"],domains:["relation","mobility","money"],lever:0,cn:"俱乐部财/排他性成员制",en:"Theory of Clubs",scholar:"James M. Buchanan",work:"An Economic Theory of Clubs",year:"1965",disc:"econ",school:"制度经济学",core:"准公共财的最优规模自带排他：学区、私校、会所、校友网都用「准入费」划定共享圈。",detail:"Buchanan 问了一个被公共经济学漏掉的问题：公共财与私财之间还有「俱乐部财」——泳池、教会、学区、校友网——成员共享收益但人多了会挤，所以最优规模永远小于全体。结论冷酷但精确：排他不是腐败而是这类财货的均衡属性，会员费就是筛选器。把这个逻辑套到现实：学区房的房价是准入费、私校学费是准入费、无薪实习的机会成本也是准入费——看似中立的「门槛」系统性地把同一批人请进同一个池子。图谱中它以耦合边接「机会囤积」——囤积不是霸占而是买断共享权，俱乐部财是它的微观定价机制；以耦合边接「成功者撤离」——Reich 的宏观撤离就是用私人俱乐部替代公共品。边界：规范含义暧昧——它既可用于诊断排他（为什么好资源总被围起来），也可被用来合理化排他（最优规模说）；且把人当可替换成员的假设漏掉了准入机制本身制造的身份忠诚。",links:[{t:"Economica 原文 DOI",u:"https://doi.org/10.2307/2552442"}]},
+{id:"reich_secession",aka:"赖克 成功者撤离 门禁社区",stages:["s3","s4"],classes:["c3"],domains:["money","family","meaning"],lever:0,cn:"成功者撤离",en:"Secession of the Successful",scholar:"Robert B. Reich",work:"Secession of the Successful",year:"1991",disc:"pol",school:"精英研究",core:"精英以门禁社区、私校、私人安保替代公共品——退出公共承诺后，连纳税意愿一起退出。",detail:"Reich 1991 年诊断的进程今天更清晰：成功的那五分之一不是「移民」而是「内迁」——搬进有门禁的社区、把孩子送进私校、用订阅制服务替代公共服务、在云端社群里完成社交。每一步都合理：谁不想给孩子更好的？但聚合效应是系统性的——当精英不再使用公共品，他们便不再为它纳税辩护；当公共品因失血而变差，更多人被迫私人化，恶性循环自我强化。他把 Hirschman 的退出/忠诚/发声框架落到财政社会学：最致命的不是富人的退出本身，而是退出带走了公共承诺的辩护者。图谱中它以耦合边接「俱乐部财」——撤离的微观实现形式就是私人俱乐部财替代公共财；耦合「位置性商品」——位置焦虑驱动了撤离动机。边界：Reich 的叙事有怀旧成分（战后才有的高公共承诺非常态），且「撤离」把异质的精英简化成单一集团；但作为诊断框架它解释了当代最难解的公共财政僵局——为什么越来越富的社会修不起越来越破的公共品。",links:[{t:"NYTimes 原文存档",u:"https://www.nytimes.com/1991/01/20/magazine/secession-of-the-successful.html"}]},
+{id:"omnivore",aka:"彼得森 文化杂食 杂食性品味",stages:["s3","s4"],classes:["c2","c3"],domains:["meaning","relation","mobility"],lever:1,cn:"文化杂食论",en:"Cultural Omnivore",scholar:"Richard Peterson",work:"Understanding Audience Segmentation",year:"1992",disc:"soc",school:"精英研究",core:"精英品味从「只爱高雅」转向「什么都懂点」——区隔没有消失，而是从吃什么升级成怎么吃的姿态。",detail:"Peterson 1992 年发现布迪厄的剧本被改写了：美国高收入人群不再只听古典乐看歌剧，他们「什么都听」——爵士、摇滚、世界音乐全在歌单里。杂食不是品味民主化，而是区隔技术的升级：旧精英靠「只认高雅」划线，新精英靠「能在说唱与歌剧间自如切换」划线——垄断的不是内容而是姿态、胃口宽度与切换自如的从容。准入证从「知道什么是好的」变成「对一切保持开放且不失控」。这也解释了为什么「装」越来越难被识破：杂食精英的区隔藏在混搭的配方而非单一符号。图谱中它以谱系边接自「惯习·场域·资本」——对《区分》的定向修正，同一战场换了武器；耦合「特权/从容」——Khan 的精英从容正是杂食姿态的人格化。边界：杂食主要在西方都市样本成立，层级从「内容」挪到「关系性掌握」后在非西方语境未必同构；且「懂一切」本身就是一种需要闲暇与文化资本才能负担的奢侈。",links:[{t:"Poetics 原文 DOI",u:"https://doi.org/10.1016/0304-422X(92)90008-Q"}]},
+// ── 晚年：老化理论群 ──
+{id:"disengagement",aka:"卡明 亨利 撤离理论 脱离理论",stages:["s4"],domains:["meaning","health","family"],lever:0,cn:"撤离理论",en:"Disengagement Theory",scholar:"Elaine Cumming & William Henry",work:"Growing Old: The Process of Disengagement",year:"1961",disc:"dev",school:"成人发展",core:"老化是社会与个体的双向放手：角色自然收缩、能量内收——撤离甚至被写成「功能」。",detail:"Cumming & Henry 用堪萨斯城样本提出老年社会学的第一个统合理论：老化伴随着一种相互撤离——个体从内撤出社会角色（工作、社团、义务），社会从外撤出对老人的期待，双向放手被写成一种自然甚至健康的功能：它为必然的死亡让路，也让制度得以更新。这套 1961 年的功能主义叙事立刻成了靶子：批评者说把社会撤回角色与意义通道叫做「自然过程」，等于把剥夺洗白成成熟；且堪萨斯样本的横断面设计无法区分「变老导致退缩」与「这代人本来如此」。图谱中它以张力边对「活动理论」——退缩是过程还是失权，老年社会学的第一次大辩论；以谱系边连「连续性理论」——Atchley 的和解方案在两极之间。边界：今天它更多作为历史参照物被引用——但它的影子仍在，每次「老了就该认命/退居二线」都是撤离论的民间版。",links:[{t:"Basic Books《Growing Old》",u:"https://archive.org/details/growingoldproces0000cumm"}]},
+{id:"activity_aging",aka:"哈维格斯特 活动理论 成功老化",stages:["s4"],domains:["meaning","health","work"],lever:1,cn:"活动理论",en:"Activity Theory",scholar:"Robert Havighurst",work:"Older People 1953 / Successful Aging 1963",year:"1953/1963",disc:"dev",school:"成人发展",core:"幸福感=维持活动与角色——所谓自然撤离，多半是社会撤回了老人的角色与意义通道。",detail:"活动理论是对撤离论的直接反驳：Havighurst 等人发现晚年幸福感与活动量、角色维持正相关——健康老人不是「自然地」想退出，而是想继续做事、继续被需要；所谓撤离大多是被强制退休、年龄歧视、缺乏替代角色等外力制造的失权。这一派的政策含义立竿见影：不是帮老人「学会放手」，而是保住角色供给——延迟退休的弹性路径、志愿与照护性角色、代际接触的设计。它与撤离论的斗争定义了之后半个世纪的老化研究。图谱中它以张力边对「撤离理论」——同一批经验现象的两个规范性解读；以谱系边连「连续性理论」——Atchley 把「维持」个性化成自我连贯。边界：活动主义也有阴暗面——「必须保持活跃」可以变成另一种年龄规范暴政，对失能与内向老人施加表演性压力；这正是连续性理论要修的边。",links:[{t:"《Successful Aging》会议论文集",u:"https://archive.org/details/processesofaging01atch"}]},
+{id:"continuity_aging",aka:"阿奇利 连续性理论 自我连贯",stages:["s4"],domains:["meaning","health"],lever:1,cn:"连续性理论",en:"Continuity Theory",scholar:"Robert C. Atchley",work:"A Continuity Theory of Normal Aging",year:"1989",disc:"dev",school:"成人发展",core:"成功老化=维持个人既有的适应模式：内向者安静老去，外向者忙碌老去——关键是自我不断裂。",detail:"Atchley 给撤离之争开出了和解方案：成功老化既不是全面退缩（撤离论），也不是硬撑着维持中年活动量（活动论），而是维持「连续性」——每个人带着自己一生形成的适应风格、偏好与身份进入老年，并倾向按同一套方式继续应对。内向的人安静老去不算失败，外向的人四处奔忙也不是逞强；断裂的不是活动量而是「我还是不是我」。临床与政策含义都很具体：干预目标不是把人变成「健康老人模板」，而是帮他在变化（退休、丧偶、搬迁）中保住自我叙述的连贯——保住习惯的、熟悉的、自认的那部分生活。图谱中它以谱系边同时接自「撤离理论」与「活动理论」——两极之间的综合；它是当前老年照护与退休规划的主流底层逻辑。边界：连续性假设人有稳定自我可连续——对一生本就断裂（多次流离、身份重构）的人，连续可能恰是创伤而非目标。",links:[{t:"The Gerontologist 原文 DOI",u:"https://doi.org/10.1093/geront/29.2.183"}]},
+{id:"life_review",aka:"巴特勒 生命回顾 回忆疗法",stages:["s4"],domains:["meaning","family","health"],lever:1,cn:"生命回顾",en:"Life Review",scholar:"Robert N. Butler",work:"The Life Review: An Interpretation of Reminiscence in the Aged",year:"1963",disc:"dev",school:"成人发展",core:"晚年自然出现的人生盘点心理过程——可以被引导成整合性叙事，是回忆疗法的实证基础。",detail:"Butler 1963 年的短文把一种被当成「老年人唠叨」的现象重新命名：生命回顾——临近生命终点时人会自然地盘点一生，重访荣耀也重访羞耻，试图把破碎经验缝成一条讲得通的主线。它的革命性在于指出回忆不是退化而是工作：做得好的回顾产出 Erikson 意义上的「整合」（我的人生有意义、我接受它），做砸的回顾则沉进反刍与绝望。由此生长出回忆疗法与叙事性老年干预：引导式重述、生平写作、代际讲述都被证明能改善晚年抑郁与意义感——它同时给了普通人一个可操作的杠杆：不必等治疗师，认真给自己讲一遍人生本身就是干预。图谱中它以谱系边接自「心理社会八阶段」——把 Erikson 的整合任务方法化；耦合「社会情绪选择」——盘点提供收缩期的缝合技术。边界：回顾的反刍化风险真实存在，重大未处理创伤需要专业引导而非独自深挖。",links:[{t:"Psychiatry 原文 PMC",u:"https://pmc.ncbi.nlm.nih.gov/articles/PMC1500269/"}]},
+{id:"bengtson_solidarity",aka:"本特森 代际团结 代际矛盾",stages:["s3","s4"],domains:["family","relation"],lever:1,cn:"代际团结与矛盾",en:"Intergenerational Solidarity & Ambivalence",scholar:"Vern Bengtson",work:"Intergenerational Solidarity model",year:"1991",disc:"fam",school:"家庭变迁",core:"把代际关系拆成六维：情感/共识/功能互助/规范/接触/结构——亲密与张力可以在不同维度上并存。",detail:"Bengtson 的团结模型把「我们和父母关系好不好」拆成六个可分别测量的维度：情感亲密度、价值观共识、功能互助（钱/照顾）、规范义务感、接触频率、结构机会（住得多近）。关键洞察是维度可以脱钩：不住一起（低接触）不等于疏远（高情感），定期给钱（高功能）不消灭意见分歧（低共识）——代际关系是多变量结构不是单极温度计。后来他加入「矛盾」概念补上阴性面：成年子女与父母常同时体验亲密与张力，矛盾不是关系坏了而是代际的常态配置。实操价值：想改善代际关系不必全面开火，找准最弱的那个维度补——很多人缺的不是情感而是结构机会或共识语言。图谱中它以耦合边接「差序格局」——西方的低接触高独立与中国的反馈-反哺互照，现代化在两边都在拉高矛盾维度。边界：六维框架在西方核心家庭语境开发，中国「不分家」结构里维度权重需重排。",links:[{t:"Bengtson & Roberts 原文 DOI",u:"https://doi.org/10.2307/585721"}]},
+{id:"third_age",aka:"拉斯莱特 第三龄 第四龄",stages:["s4"],domains:["meaning","health","work"],lever:1,cn:"第三龄/第四龄",en:"Third & Fourth Age",scholar:"Peter Laslett",work:"A Fresh Map of Life",year:"1989",disc:"soc",school:"成人发展",core:"退休到失能之间是全新的人生阶段：第一龄成长、第二龄责任、第三龄自我实现、第四龄依赖。",detail:"Laslett 把人生重画成四龄：第一龄学习与依赖，第二龄工作与家庭责任，第三龄——退休到失能之间这段被旧模型当成「等死期」的时间——其实是历史上第一次出现的大规模自由窗口：健康尚可、责任卸下、时间自主。第四龄才是衰退与依赖。这个重划的革命性在于把「老年」从单数拆成两个阶段：第三龄是需要主动经营的自我实现期（学习、创作、旅行、 mentoring），第四龄才需要照护逻辑介入。平均预期下第三龄可长达二三十年——足够再造一个职业生涯。图谱中它与「连续性理论」同校——都是把晚年从缺陷叙事改成阶段叙事；对个人它是直接的认知杠杆：你即将获得的不是「余生」而是「第三段人生」，经营方式决定它是自我实现还是提前进入第四龄。边界：第三龄以健康与资源为前提，对带病低储蓄老人更像奢侈品叙事——这恰是它被批评遮蔽老年不平等的地方。",links:[{t:"Harvard UP《A Fresh Map of Life》",u:"https://www.hup.harvard.edu/books/9780674213274"}]},
+{id:"cowgill",aka:"考吉尔 现代化与老化 老人地位",stages:["s4"],domains:["family","meaning","health"],lever:0,cn:"现代化与老化",en:"Modernization & Aging",scholar:"Donald Cowgill & Lowell Holmes",work:"Aging and Modernization",year:"1972",disc:"soc",school:"成人发展",core:"现代化程度越高老人地位越低：技术迭代、城市化、教育普及侵蚀了长者的知识与权威资本。",detail:"Cowgill 的现代化命题冷酷但有解释力：前现代社会里老人的权威来自四种资产——经验知识（只有他们知道怎么种地治病）、财产控制权、亲属网络的仲裁权、祖先崇拜的文化地位。现代化逐项没收：技术迭代让经验快速过时，城市化把代际拆散，普及教育使「懂得多」逆转为「懂得旧」，市场养老替代家庭赡养后连财产杠杆都失效。于是老人地位与现代化程度呈反向相关——不是子女不孝，而是长者资产被系统性贬值。这个框架至今解释力不减：智能手机时代的代沟是它的最新一章，也解释了为什么「教父母用手机」常同时是温情时刻和权力倒置时刻。图谱中它给「家庭变迁」与「家庭治理」提供宏观底色——代际关系的微观张力背后是长者资本的历史贬值曲线。边界：反例存在（日本传统敬老在高现代化下残存），且「地位」的多维性使单线贬值叙事偏粗；数字反哺现象说明资产也可能被部分重构。",links:[{t:"Appleton《Aging and Modernization》",u:"https://archive.org/details/agingmodernizati0000cowg"}]},
+);
+
+</script>
+<script>
 // 引文數據：僅收錄經人工核對、確認匹配正確的 OpenAlex 被引數
 // 來源：OpenAlex API (api.openalex.org) title.search + cited_by_count
 // 未收錄的節點 = 未取得可靠匹配，不代表被引數為 0
@@ -5253,6 +5277,25 @@ edges:[
 {f:"huizinga",t:"lareau",type:"coupling",label:"排程vs自发",m:"赫伊津哈的游戏判据——自愿、魔圈、非功利——正是拉鲁两种童年的差异轴：中产协作培养把游戏排程化目标化（足球课、考级、成人裁判），劳工自然成长的游戏保留自发形态（街头、混龄、无裁判）。同一件事两种形态：游戏在中产被组织成发展投资、在底层仍是「游戏的人」的原始样态——游戏精神的分布本身就是阶级地图——劳工孩子的自由游戏恰是「魔圈」的幸存形态。",ev:"fw",s:2},
 {f:"huizinga",t:"winnicott",type:"coupling",label:"游戏双源",m:"赫伊津哈的魔圈与温尼科特的过渡空间是游戏概念的两个平行源头：历史学家记游戏的形式（自愿、有界、有规则、投入），临床学家记游戏的发展功能（在母亲与世界之间的第三区域，真假自我的孵化地）。一个说文明器官从游戏里长出、一个说自我从游戏里长出——魔圈是文化的、过渡空间是心理的，「不是游戏就没有文化也没有自我」是两个传统的共同底注。",ev:"fw",s:2},
 {f:"huizinga",t:"bourdieu",type:"genealogy",label:"游戏感→场域",m:"布迪厄的「游戏感」与「illusio」直接借自游戏理论：场域就是一场需要被当真的游戏——幻觉投资是把赌注认作值得的前提，而谁能入场、带什么筹码早已分配。赫伊津哈说游戏自愿且游离于日常，布迪厄的场域却把人抓进游戏：你不自愿也已被计入排名。游戏的人提供形式语汇，场域理论把它社会学化——魔圈换成了有赌注分布的竞技场。",ev:"fw",s:2},
+// ── 扩充批C：精英侧机制 + 晚年理论群 ──
+{f:"bourdieu",t:"omnivore",type:"genealogy",label:"区隔的修正版",m:"Peterson的杂食命题是对《区分》的定向修正：布迪厄时代精英靠「只认高雅」划线，1990年代起精英改用「什么都懂一点」划线——品味的排他性从内容转向姿态与胃口宽度。omnivore不是取消区隔而是区隔升级：真正的高级变成「能在说唱和歌剧间自如切换」的文化护照。",ev:"fw",s:3},
+{f:"reeves_hoarding",t:"glass_floor",type:"produces",label:"同一作者的下行面",m:"Reeves把机会囤积框架翻到下侧：囤的是上升通道，玻璃地板垫的是下坠终点。同一批资源（补习、人脉、二次机会、房产）在孩子表现平庸时换成安全气囊——精英家庭的不平等不只在顶端加固，也在底部封死。低认知能力的高SES孩子最终收入依然偏高，是地板存在的实证痕迹。",ev:"emp",s:4},
+{f:"veblen",t:"hirsch_positional",type:"genealogy",label:"炫耀→位置",m:"Veblen发现消费是地位竞赛，Hirsch给出竞赛的数学：位置性商品的价值内建稀缺性（好学位、好职位、安静街区），供给不随总需求扩张——人人收入翻倍不改变顶层10%的位置数。炫耀消费是位置竞争的原始形态，位置商品是它的结构版：军备竞赛没有终点，因为奖品本身就是「你在别人前面」。",ev:"fw",s:4},
+{f:"club_theory",t:"reeves_hoarding",type:"coupling",label:"准入费=囤积工具",m:"Buchanan的俱乐部财为机会囤积提供微观定价机制：学区房价、私校学费、会费校友网都是「准入费」，把公共外观的机会变成按支付能力分层的内部圈——囤积不是霸占资源，是买断共享权。最优规模小于全体的均衡属性，使排他从制度缺陷变成设计特征。",ev:"fw",s:3},
+{f:"reich_secession",t:"club_theory",type:"coupling",label:"撤离用俱乐部实现",m:"Reich的成功者撤离正是Buchanan俱乐部逻辑的宏观版：精英以私人俱乐部财（门禁社区、私校、私人安保）替代公共品，退出后自然不再为公共品纳税辩护——微观退出累积成宏观公共性瓦解。最致命的不是富人走了，而是他们带走了公共承诺的辩护者。",ev:"fw",s:3},
+{f:"disengagement",t:"activity_aging",type:"tension",label:"退缩是过程还是失权",m:"老年社会学的第一次大辩论：Cumming与Henry说撤离是自然的双向放手、甚至该被制度配合；活动理论派说幸福感等于活动维持，所谓自然撤离只是社会撤回了老人的角色与意义通道——一边把退缩写成功能，一边把退缩写成剥夺。强制退休制度的存在站在活动论一边：撤离若是自然过程，何须法律强制执行。",ev:"fw",s:4},
+{f:"disengagement",t:"continuity_aging",type:"genealogy",label:"批判激出综合",m:"连续性理论是撤离之争的和解方案：Atchley说成功老化既不是全面退缩也不是硬撑活动，而是维持个人既有的适应模式——内向的人安静老去，外向的人忙碌老去，关键不是活动量而是自我连续性不断裂。撤离论被收编为连续性的特例：有些人连贯地选择收缩。",ev:"fw",s:3},
+{f:"activity_aging",t:"continuity_aging",type:"genealogy",label:"活动论的个性化修正",m:"Atchley接过活动理论的「维持」内核但去掉它的普适处方：不必人人都维持中年式忙碌，要维持的是各自的适应风格——连续性是活动论的个性化版本，也回应了活动主义的阴暗面：「必须保持活跃」会变成另一种年龄规范暴政，对失能与内向老人施加表演性压力。",ev:"fw",s:3},
+{f:"havighurst",t:"activity_aging",type:"produces",label:"同一学者的两面",m:"Havighurst的发展任务清单写「某年龄该完成的作业」，他的活动理论却在同十年反驳撤离论：老人不是该退场的角色完成者，而是被夺走角色的活动者。两个Havighurst其实互补——任务清单描述期待的内容，活动理论主张期待的供给端：不是老人完不成任务，是社会先撤了任务的舞台。",ev:"fw",s:3},
+{f:"erikson",t:"life_review",type:"genealogy",label:"整合任务的方法化",m:"Butler把Erikson第八阶段「整合对绝望」的抽象任务变成可操作的心理过程：生命回顾就是整合的工程面——把记忆调出来重新叙述，让破碎经验纳入一条讲得通的主线。做得好的回顾产出整合，做砸的沉进反刍——Erikson的规范性两极被翻成了干预的分水岭，回忆疗法由此成为老年心理工作的实证基础。",ev:"fw",s:4},
+{f:"carstensen",t:"life_review",type:"coupling",label:"剪枝与缝合",m:"社会情绪选择说晚年主动把关系收缩到高意义对象，生命回顾提供收缩期的整合技术：一个往外剪枝，一个往内缝合，两者共同解释为什么晚年意义感可以不减反升——范围小了但深度密了。Carstensen给动机（时间感转向情感目标），Butler给方法（叙事重述）。",ev:"fw",s:3},
+{f:"bengtson_solidarity",t:"fei",type:"coupling",label:"中西代际互照",m:"Bengtson的六维团结把代际关系从「孝不孝」拆成可比较的维度——与差序格局对读：西方代际是低接触高独立的「接力模式」，中国是反馈-反哺双向的「抚养-赡养模式」，但现代化正在两边都拉高矛盾维度。六维框架的价值在于让两种模式可被放在同一把尺上量：差的是维度配置，不是关系好坏。",ev:"obs",s:3},
+{f:"kohli_mayer",t:"elder",type:"produces",label:"制度切片→能动性极",m:"Kohli说生命历程被教育、就业、退休三大制度切成时序化程序，Elder的五原则补上另一极：人在制度程序内仍按所在时空做选择——历史时机、时机、连结生命、能动性、地点。一个讲你被制度写进时间表，一个讲你在时间表里怎么写自己——生命历程学派的结构极与能动极由此配齐。",ev:"fw",s:4},
+{f:"assortative",t:"lareau",type:"coupling",label:"婚配承接教养",m:"选型婚配把不平等放大器装进卧室：高学历与高学历结合，两家文化资本在同一屋檐叠加，Lareau的协作培养由此获得双倍投入——代际传递链条从「家庭→学校」延长成「婚配市场→家庭→学校」。择偶池的隔离先于教养的差异，不平等还没进学校就先在卧室完成了配对。",ev:"emp",s:3},
+{f:"parkin_closure",t:"club_theory",type:"genealogy",label:"封闭的定价版",m:"Parkin的社会封闭说支配集团靠排除与篡夺两种策略垄断机会——Buchanan的俱乐部财给出排除策略的微观经济学：准入费把「谁能共享」变成可定价的均衡问题。封闭是政治社会学诊断，俱乐部是它的价格机制——Weber-Parkin的封闭链在经济学里找到了执行装置：学区房价、私校学费、会费都是排除策略的明码标价。",ev:"fw",s:3},
+{f:"activity_aging",t:"third_age",type:"genealogy",label:"活动论的阶段化",m:"活动理论说老人要的是角色供给而非退场许可——Laslett的第三龄把这份主张升级成人生阶段设计：退休到失能的二三十年不是「等死期」而是历史上第一次出现的自我实现窗口。从「保住活动」到「规划第三段人生」：活动论要补角色，第三龄重新定义阶段——撤离之争的终点是老年的重新发明。",ev:"fw",s:3},
+{f:"cowgill",t:"disengagement",type:"coupling",label:"撤离的宏观底色",m:"Cowgill的现代化命题为撤离论提供结构解释：所谓「自然退缩」发生的时代，正是长者四种资产（经验知识、财产控制、亲属仲裁权、祖先地位）被现代化逐项没收的时代——双向放手更像单向贬值。撤离论把资产流失写成成熟过程，Cowgill把同一过程写成地位史：老人不是想退，是没什么可守了。",ev:"fw",s:3},
+{f:"cowgill",t:"third_age",type:"tension",label:"贬值曲线vs自由窗口",m:"Cowgill说现代化没收长者资产、地位持续贬值；Laslett说现代化产出第三龄这个前所未有的自由窗口——同一现代化，一个看见剥夺一个看见解放。和解可能在阶层：第三龄窗口以健康与资源为前提，恰是资产厚的人才能进的门——贬值曲线与自由窗口描述的是不同阶级的老年。",ev:"fw",s:2},
 ],
 deepdives:[
 {id:"q1",title:"结构性锁死与路径依赖：三层机制如何闭环",
@@ -5405,6 +5448,7 @@ boundaries:[
   let lit = null, litLinks = null;              // 高亮集合；null = 全亮
   let litMode = "dim";                          // dim=淡化 hide=隱藏 off=正常
   let autoFitted = false;                       // 只在首次引擎停轉時 fit，之後尊重用戶視角
+  let nearZoom = true;                          // 相机距离标志：主线模式下的标签 LOD
   const SIDE_DEF = `<div class="gt-lbl" style="color:var(--txt-dim)">节点 / 边详情</div><p style="margin-top:14px;color:var(--txt-dim);font-size:12.5px;line-height:1.9">点一个理论或一条关系，看它是谁、跟谁相连。<br>拖动旋转，滚轮缩放。</p>`;
 
   const cellCount = (tid) => DB.cells.filter((c) => (c.theories || []).includes(tid)).length;
@@ -5433,6 +5477,34 @@ boundaries:[
     for (const k of [e.f, e.t]) adj[k] = adj[k] || { n: new Set(), l: new Set() };
     adj[e.f].n.add(e.t); adj[e.t].n.add(e.f); adj[e.f].l.add(i); adj[e.t].l.add(i);
   });
+
+  /* 主线骨干：位于 ≥3 节点 genealogy/produces 长链上、或为 ≥3 度谱系枢纽的节点 */
+  const BACKBONE = (() => {
+    const ch = DB.edges.filter((e) => e.type === "genealogy" || e.type === "produces");
+    const out = {}, inn = {}, deg = {};
+    ch.forEach((e) => {
+      (out[e.f] = out[e.f] || []).push(e.t); (inn[e.t] = inn[e.t] || []).push(e.f);
+      deg[e.f] = (deg[e.f] || 0) + 1; deg[e.t] = (deg[e.t] || 0) + 1;
+    });
+    const memoF = {}, memoB = {}, vf = new Set(), vb = new Set();
+    const fwd = (id) => { if (memoF[id] != null) return memoF[id]; if (vf.has(id)) return 0; vf.add(id);
+      let b = 0; for (const t of out[id] || []) b = Math.max(b, 1 + fwd(t)); vf.delete(id); return memoF[id] = b; };
+    const bwd = (id) => { if (memoB[id] != null) return memoB[id]; if (vb.has(id)) return 0; vb.add(id);
+      let b = 0; for (const f of inn[id] || []) b = Math.max(b, 1 + bwd(f)); vb.delete(id); return memoB[id] = b; };
+    const set = new Set();
+    new Set(ch.flatMap((e) => [e.f, e.t])).forEach((id) => {
+      if (fwd(id) + bwd(id) >= 2 || (deg[id] || 0) >= 3) set.add(id);
+    });
+    return set;
+  })();
+  let mainline = BACKBONE.size > 0;             // 預設主線視圖（點雲先給脈絡，不給毛線球）
+  function setMainline(on) {
+    mainline = on;
+    $$("#graph-toolbar [data-view2]").forEach((x) => x.classList.toggle("on", (x.dataset.view2 === "main") === on));
+    refreshData(); applyColors();
+    if (fg) { fg.cooldownTicks(160); if (fg.d3ReheatSimulation) fg.d3ReheatSimulation(); }
+  }
+  function ensureInView(id) { if (mainline && id && !BACKBONE.has(id)) setMainline(false); }
 
   function baseColor(n) {
     if (colorMode === "school" || (colorMode === "cell" && lit && lit.has(n.id))) return scol(n.t.school);
@@ -5475,6 +5547,7 @@ boundaries:[
   }
   /* 选中节点：详情 + 邻居高亮 + 镜头居中 */
   function selectTheory(id) {
+    ensureInView(id);
     showNode(id);
     lit = new Set([id, ...(adj[id] ? adj[id].n : [])]);
     litLinks = adj[id] ? adj[id].l : new Set();
@@ -5492,10 +5565,12 @@ boundaries:[
       const dim = litMode === "dim" && lit && !lit.has(n.id);
       m.material.color.set(dim ? "#232a35" : baseColor(n));
       m.material.opacity = dim ? 0.22 : 1;
-      const want = labelOn ? !dim : !!(lit && lit.has(n.id));
+      const want = (labelOn || mainline) ? !dim : !!(lit && lit.has(n.id));
       if (want && !s) { s = makeSprite(n); n.__s = s; n.__g.add(s); }
       if (s) {
-        s.visible = want;
+        const lod = !mainline || nearZoom || (lit && lit.has(n.id)) || nodeR(n.t) >= 4.2;
+        s.visible = want && lod;
+        s.textHeight = s.__h * (mainline ? 2.4 : 1);
         s.color = colorMode === "disc" ? "#c9d1d9" : baseColor(n);
       }
     });
@@ -5503,9 +5578,12 @@ boundaries:[
   function refreshData() {
     if (!fg) return;
     const nodes = gNodes.filter((n) => activeDisc.has(n.t.disc) &&
+      (!mainline || BACKBONE.has(n.id)) &&
       (litMode !== "hide" || !lit || lit.has(n.id)));
     const ok = new Set(nodes.map((n) => n.id));
-    fg.graphData({ nodes, links: gLinks.filter((l) => ok.has(sid(l.source)) && ok.has(sid(l.target)) && activeEdge.has(l.e.type) && (!l.e.ev || activeEv.has(l.e.ev))) });
+    fg.graphData({ nodes, links: gLinks.filter((l) => ok.has(sid(l.source)) && ok.has(sid(l.target)) &&
+      activeEdge.has(l.e.type) && (!l.e.ev || activeEv.has(l.e.ev)) &&
+      (!mainline || l.e.type === "genealogy" || l.e.type === "produces")) });
   }
   function clearLit() {
     lit = null; litLinks = null; syncLitFromMode(); refreshData(); applyColors();
@@ -5534,6 +5612,10 @@ boundaries:[
     tb.innerHTML =
       `<div style="display:flex;justify-content:space-between;align-items:center"><div class="gt-lbl" style="margin:0">图控</div><button class="fbtn" id="tb-hide">隐藏 ▾</button></div>` +
       `<div><input id="g-search" placeholder="搜理论/学者/谱系(中英)…" style="${inSt}"><div id="g-results"></div></div>` +
+      `<div><div class="gt-lbl">视图</div><div class="gt-row">` +
+        `<button class="fbtn${mainline ? " on" : ""}" data-view2="main" title="只显示谱系长链上的骨干理论">主线 ${BACKBONE.size}</button>` +
+        `<button class="fbtn${mainline ? "" : " on"}" data-view2="all" title="显示全部理论节点">全部 ${DB.theories.length}</button>` +
+      `</div></div>` +
       `<div><div class="gt-lbl">着色</div><div class="gt-row">` +
         `<button class="fbtn on" data-mode="disc">学科</button>` +
         `<button class="fbtn" data-mode="school">谱系</button>` +
@@ -5557,9 +5639,11 @@ boundaries:[
         `<select id="lit-mode"><option value="dim">淡化</option><option value="hide">隐藏</option><option value="off">正常</option></select>` +
       `</div></div>`;
 
+    $$("[data-view2]", tb).forEach((b) => b.addEventListener("click", () => setMainline(b.dataset.view2 === "main")));
     $$("[data-mode]", tb).forEach((b) => b.addEventListener("click", () => {
       $$("[data-mode]", tb).forEach((x) => x.classList.toggle("on", x === b));
       colorMode = b.dataset.mode;
+      if (colorMode === "cell") setMainline(false);
       $("#cell-sel").style.display = colorMode === "cell" ? "" : "none";
       lit = null; litLinks = null; syncLitFromMode(); refreshData(); applyColors();
     }));
@@ -5631,6 +5715,7 @@ boundaries:[
     const r = nodeR(n.t);
     const s = new SpriteText(n.t.cn);
     s.textHeight = Math.max(3.4, r * 1.15);
+    s.__h = s.textHeight;
     s.color = colorMode === "disc" ? "#c9d1d9" : baseColor(n);
     s.center.set(0.5, 1.5);
     s.material.depthWrite = false;
@@ -5676,6 +5761,13 @@ boundaries:[
         if (!autoFitted) { autoFitted = true; fg.zoomToFit(900, 80); }
         fg.cooldownTicks(0); // 之後的篩選/點選不再重新加熱佈局，節點不漂移
       });
+    setInterval(() => {
+      if (!fg || (!mainline && nearZoom)) return;
+      const cp = fg.cameraPosition(), tg = fg.controls ? fg.controls().target : null;
+      const d = tg ? Math.hypot(cp.x - tg.x, cp.y - tg.y, cp.z - tg.z) : Math.hypot(cp.x, cp.y, cp.z);
+      const nz = d < 520;
+      if (nz !== nearZoom) { nearZoom = nz; applyColors(); }
+    }, 300);
     new ResizeObserver(() => {
       const w = gel.clientWidth, h = gel.clientHeight;
       if (fg && w > 0 && h > 0) fg.width(w).height(h);
@@ -6277,6 +6369,7 @@ boundaries:[
     });
     $("#rep-graph").addEventListener("click", () => {
       const top = new Set(ranked.slice(0, 30).map((r) => r.t.id));
+      if (mainline) setMainline(false);
       goView("graph");
       lit = top;
       litLinks = new Set(); DB.edges.forEach((e, i) => { if (top.has(e.f) && top.has(e.t)) litLinks.add(i); });

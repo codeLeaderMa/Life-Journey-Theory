@@ -93,6 +93,7 @@
   let lit = null, litLinks = null;              // 高亮集合；null = 全亮
   let litMode = "dim";                          // dim=淡化 hide=隱藏 off=正常
   let autoFitted = false;                       // 只在首次引擎停轉時 fit，之後尊重用戶視角
+  let nearZoom = true;                          // 相机距离标志：主线模式下的标签 LOD
   const SIDE_DEF = `<div class="gt-lbl" style="color:var(--txt-dim)">节点 / 边详情</div><p style="margin-top:14px;color:var(--txt-dim);font-size:12.5px;line-height:1.9">点一个理论或一条关系，看它是谁、跟谁相连。<br>拖动旋转，滚轮缩放。</p>`;
 
   const cellCount = (tid) => DB.cells.filter((c) => (c.theories || []).includes(tid)).length;
@@ -121,6 +122,34 @@
     for (const k of [e.f, e.t]) adj[k] = adj[k] || { n: new Set(), l: new Set() };
     adj[e.f].n.add(e.t); adj[e.t].n.add(e.f); adj[e.f].l.add(i); adj[e.t].l.add(i);
   });
+
+  /* 主线骨干：位于 ≥3 节点 genealogy/produces 长链上、或为 ≥3 度谱系枢纽的节点 */
+  const BACKBONE = (() => {
+    const ch = DB.edges.filter((e) => e.type === "genealogy" || e.type === "produces");
+    const out = {}, inn = {}, deg = {};
+    ch.forEach((e) => {
+      (out[e.f] = out[e.f] || []).push(e.t); (inn[e.t] = inn[e.t] || []).push(e.f);
+      deg[e.f] = (deg[e.f] || 0) + 1; deg[e.t] = (deg[e.t] || 0) + 1;
+    });
+    const memoF = {}, memoB = {}, vf = new Set(), vb = new Set();
+    const fwd = (id) => { if (memoF[id] != null) return memoF[id]; if (vf.has(id)) return 0; vf.add(id);
+      let b = 0; for (const t of out[id] || []) b = Math.max(b, 1 + fwd(t)); vf.delete(id); return memoF[id] = b; };
+    const bwd = (id) => { if (memoB[id] != null) return memoB[id]; if (vb.has(id)) return 0; vb.add(id);
+      let b = 0; for (const f of inn[id] || []) b = Math.max(b, 1 + bwd(f)); vb.delete(id); return memoB[id] = b; };
+    const set = new Set();
+    new Set(ch.flatMap((e) => [e.f, e.t])).forEach((id) => {
+      if (fwd(id) + bwd(id) >= 2 || (deg[id] || 0) >= 3) set.add(id);
+    });
+    return set;
+  })();
+  let mainline = BACKBONE.size > 0;             // 預設主線視圖（點雲先給脈絡，不給毛線球）
+  function setMainline(on) {
+    mainline = on;
+    $$("#graph-toolbar [data-view2]").forEach((x) => x.classList.toggle("on", (x.dataset.view2 === "main") === on));
+    refreshData(); applyColors();
+    if (fg) { fg.cooldownTicks(160); if (fg.d3ReheatSimulation) fg.d3ReheatSimulation(); }
+  }
+  function ensureInView(id) { if (mainline && id && !BACKBONE.has(id)) setMainline(false); }
 
   function baseColor(n) {
     if (colorMode === "school" || (colorMode === "cell" && lit && lit.has(n.id))) return scol(n.t.school);
@@ -163,6 +192,7 @@
   }
   /* 选中节点：详情 + 邻居高亮 + 镜头居中 */
   function selectTheory(id) {
+    ensureInView(id);
     showNode(id);
     lit = new Set([id, ...(adj[id] ? adj[id].n : [])]);
     litLinks = adj[id] ? adj[id].l : new Set();
@@ -180,10 +210,12 @@
       const dim = litMode === "dim" && lit && !lit.has(n.id);
       m.material.color.set(dim ? "#232a35" : baseColor(n));
       m.material.opacity = dim ? 0.22 : 1;
-      const want = labelOn ? !dim : !!(lit && lit.has(n.id));
+      const want = (labelOn || mainline) ? !dim : !!(lit && lit.has(n.id));
       if (want && !s) { s = makeSprite(n); n.__s = s; n.__g.add(s); }
       if (s) {
-        s.visible = want;
+        const lod = !mainline || nearZoom || (lit && lit.has(n.id)) || nodeR(n.t) >= 4.2;
+        s.visible = want && lod;
+        s.textHeight = s.__h * (mainline ? 2.4 : 1);
         s.color = colorMode === "disc" ? "#c9d1d9" : baseColor(n);
       }
     });
@@ -191,9 +223,12 @@
   function refreshData() {
     if (!fg) return;
     const nodes = gNodes.filter((n) => activeDisc.has(n.t.disc) &&
+      (!mainline || BACKBONE.has(n.id)) &&
       (litMode !== "hide" || !lit || lit.has(n.id)));
     const ok = new Set(nodes.map((n) => n.id));
-    fg.graphData({ nodes, links: gLinks.filter((l) => ok.has(sid(l.source)) && ok.has(sid(l.target)) && activeEdge.has(l.e.type) && (!l.e.ev || activeEv.has(l.e.ev))) });
+    fg.graphData({ nodes, links: gLinks.filter((l) => ok.has(sid(l.source)) && ok.has(sid(l.target)) &&
+      activeEdge.has(l.e.type) && (!l.e.ev || activeEv.has(l.e.ev)) &&
+      (!mainline || l.e.type === "genealogy" || l.e.type === "produces")) });
   }
   function clearLit() {
     lit = null; litLinks = null; syncLitFromMode(); refreshData(); applyColors();
@@ -222,6 +257,10 @@
     tb.innerHTML =
       `<div style="display:flex;justify-content:space-between;align-items:center"><div class="gt-lbl" style="margin:0">图控</div><button class="fbtn" id="tb-hide">隐藏 ▾</button></div>` +
       `<div><input id="g-search" placeholder="搜理论/学者/谱系(中英)…" style="${inSt}"><div id="g-results"></div></div>` +
+      `<div><div class="gt-lbl">视图</div><div class="gt-row">` +
+        `<button class="fbtn${mainline ? " on" : ""}" data-view2="main" title="只显示谱系长链上的骨干理论">主线 ${BACKBONE.size}</button>` +
+        `<button class="fbtn${mainline ? "" : " on"}" data-view2="all" title="显示全部理论节点">全部 ${DB.theories.length}</button>` +
+      `</div></div>` +
       `<div><div class="gt-lbl">着色</div><div class="gt-row">` +
         `<button class="fbtn on" data-mode="disc">学科</button>` +
         `<button class="fbtn" data-mode="school">谱系</button>` +
@@ -245,9 +284,11 @@
         `<select id="lit-mode"><option value="dim">淡化</option><option value="hide">隐藏</option><option value="off">正常</option></select>` +
       `</div></div>`;
 
+    $$("[data-view2]", tb).forEach((b) => b.addEventListener("click", () => setMainline(b.dataset.view2 === "main")));
     $$("[data-mode]", tb).forEach((b) => b.addEventListener("click", () => {
       $$("[data-mode]", tb).forEach((x) => x.classList.toggle("on", x === b));
       colorMode = b.dataset.mode;
+      if (colorMode === "cell") setMainline(false);
       $("#cell-sel").style.display = colorMode === "cell" ? "" : "none";
       lit = null; litLinks = null; syncLitFromMode(); refreshData(); applyColors();
     }));
@@ -319,6 +360,7 @@
     const r = nodeR(n.t);
     const s = new SpriteText(n.t.cn);
     s.textHeight = Math.max(3.4, r * 1.15);
+    s.__h = s.textHeight;
     s.color = colorMode === "disc" ? "#c9d1d9" : baseColor(n);
     s.center.set(0.5, 1.5);
     s.material.depthWrite = false;
@@ -364,6 +406,13 @@
         if (!autoFitted) { autoFitted = true; fg.zoomToFit(900, 80); }
         fg.cooldownTicks(0); // 之後的篩選/點選不再重新加熱佈局，節點不漂移
       });
+    setInterval(() => {
+      if (!fg || (!mainline && nearZoom)) return;
+      const cp = fg.cameraPosition(), tg = fg.controls ? fg.controls().target : null;
+      const d = tg ? Math.hypot(cp.x - tg.x, cp.y - tg.y, cp.z - tg.z) : Math.hypot(cp.x, cp.y, cp.z);
+      const nz = d < 520;
+      if (nz !== nearZoom) { nearZoom = nz; applyColors(); }
+    }, 300);
     new ResizeObserver(() => {
       const w = gel.clientWidth, h = gel.clientHeight;
       if (fg && w > 0 && h > 0) fg.width(w).height(h);
@@ -965,6 +1014,7 @@
     });
     $("#rep-graph").addEventListener("click", () => {
       const top = new Set(ranked.slice(0, 30).map((r) => r.t.id));
+      if (mainline) setMainline(false);
       goView("graph");
       lit = top;
       litLinks = new Set(); DB.edges.forEach((e, i) => { if (top.has(e.f) && top.has(e.t)) litLinks.add(i); });
