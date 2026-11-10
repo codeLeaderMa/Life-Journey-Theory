@@ -23,25 +23,32 @@
   const theory = (id) => DB.theories.find((t) => t.id === id);
   const theorySafe = (id) => theory(id) || { id, cn: id, en: "", scholar: "", disc: "misc", school: "", work: "", year: "", core: "" };
   const dcol = (t) => DCOL[t.disc] || "#8b949e";
-  const sname = (id) => (DB.stages.find((s) => s.id === id) || {}).cn || id;
-  const cname = (id) => (DB.classes.find((c) => c.id === id) || {}).cn || id;
+  const sname = (id) => { const s = DB.stages.find((s) => s.id === id) || {}; return (isEN() ? s.en || s.cn : s.cn) || id; };
+  const cname = (id) => { const c = DB.classes.find((c) => c.id === id) || {}; return (isEN() ? c.en || c.cn : c.cn) || id; };
+  const dname = (k) => (isEN() && window.DISC_EN ? DISC_EN[k] || DISC[k] : DISC[k]);
+  const ename = (k) => (isEN() && window.ET_EN ? ET_EN[k] || ET[k] : ET[k]);
+  const evname = (k) => (isEN() && window.EV_EN ? EV_EN[k] || EV[k] : EV[k]);
 
   /* ============ matrix ============ */
   let curStage = "all";
   const tabs = $("#stage-tabs");
-  const mkTab = (id, html) => {
-    const b = document.createElement("button");
-    b.className = "stage-tab" + (id === curStage ? " active" : "");
-    b.dataset.stage = id; b.innerHTML = html; tabs.appendChild(b);
-  };
-  mkTab("all", "全周期");
-  DB.stages.forEach((s) => mkTab(s.id, `${s.cn}<span class="age">${s.range}</span>`));
-  $$(".stage-tab", tabs).forEach((b) =>
-    b.addEventListener("click", () => {
-      $$(".stage-tab", tabs).forEach((x) => x.classList.toggle("active", x === b));
-      curStage = b.dataset.stage; renderMatrix();
-    })
-  );
+  function renderTabs() {
+    tabs.innerHTML = "";
+    const mkTab = (id, html) => {
+      const b = document.createElement("button");
+      b.className = "stage-tab" + (id === curStage ? " active" : "");
+      b.dataset.stage = id; b.innerHTML = html; tabs.appendChild(b);
+    };
+    mkTab("all", t("tab.all"));
+    DB.stages.forEach((s) => mkTab(s.id, `${sname(s.id)}<span class="age">${s.range}</span>`));
+    $$(".stage-tab", tabs).forEach((b) =>
+      b.addEventListener("click", () => {
+        $$(".stage-tab", tabs).forEach((x) => x.classList.toggle("active", x === b));
+        curStage = b.dataset.stage; renderMatrix();
+      })
+    );
+  }
+  renderTabs();
 
   const chip = (t) =>
     `<span class="chip" data-theory="${t.id}" style="color:${dcol(t)};background:${dcol(t)}24" title="${esc(t.en)} · ${esc(t.scholar)}">${esc(t.cn)}</span>`;
@@ -51,22 +58,22 @@
     const brief = c.mech.slice(0, 52) + "…";
     return `
       <div class="cid">${s.id}×${cl.id}</div>
-      <h3>${esc(s.cn)} × ${esc(cl.cn)}</h3>
+      <h3>${esc(sname(s.id))} × ${esc(cname(cl.id))}</h3>
       <div class="chips">${chips}</div>
       <div class="brief">${esc(brief)}</div>
       <div class="detail">
-        <div class="sec mech"><span class="lbl">▸ 作用机制 MECHANISM</span>${esc(c.mech)}</div>
-        <div class="sec out"><span class="lbl">▸ 系统输出 OUTCOME</span>${esc(c.out)}</div>
+        <div class="sec mech"><span class="lbl">${t("mx.mech")}</span>${esc(c.mech)}</div>
+        <div class="sec out"><span class="lbl">${t("mx.out")}</span>${esc(c.out)}</div>
       </div>`;
   }
 
   function renderMatrix() {
     const grid = $("#matrix-grid");
     grid.innerHTML = `<div class="corner">STAGE \\ CLASS</div>` +
-      DB.classes.map((cl) => `<div class="col-head">${cl.cn}<span class="en">${esc(cl.en)}</span></div>`).join("");
+      DB.classes.map((cl) => `<div class="col-head">${cname(cl.id)}<span class="en">${esc(cl.en)}</span></div>`).join("");
     DB.stages.forEach((s) => {
       if (curStage !== "all" && curStage !== s.id) return;
-      grid.insertAdjacentHTML("beforeend", `<div class="row-head">${s.cn} ${s.range}</div>`);
+      grid.insertAdjacentHTML("beforeend", `<div class="row-head">${sname(s.id)} ${s.range}</div>`);
       DB.classes.forEach((cl) => {
         const c = DB.cells.find((x) => x.stage === s.id && x.cls === cl.id);
         const div = document.createElement("div");
@@ -81,7 +88,8 @@
     );
   }
   renderMatrix();
-  $("#matrix-legend").innerHTML = discLegend() + `<div class="legend-row" style="margin-top:-2px"><span class="legend-lbl">药丸 = 理论节点，点击进图查看；卡片可展开机制详解</span></div>`;
+  const renderMxLegend = () => { $("#matrix-legend").innerHTML = discLegend() + `<div class="legend-row" style="margin-top:-2px"><span class="legend-lbl">${t("mx.legend2")}</span></div>`; };
+  renderMxLegend();
 
   /* ============ graph (3D, three.js + 3d-force-graph) ============ */
   let fg = null, labelOn = DB.theories.length <= 250;
@@ -94,7 +102,7 @@
   let litMode = "dim";                          // dim=淡化 hide=隱藏 off=正常
   let autoFitted = false;                       // 只在首次引擎停轉時 fit，之後尊重用戶視角
   let nearZoom = true;                          // 相机距离标志：主线模式下的标签 LOD
-  const SIDE_DEF = `<div class="gt-lbl" style="color:var(--txt-dim)">节点 / 边详情</div><p style="margin-top:14px;color:var(--txt-dim);font-size:12.5px;line-height:1.9">点一个理论或一条关系，看它是谁、跟谁相连。<br>拖动旋转，滚轮缩放。</p>`;
+  const SIDE_DEF = () => `<div class="gt-lbl" style="color:var(--txt-dim)">${t("side.title")}</div><p style="margin-top:14px;color:var(--txt-dim);font-size:12.5px;line-height:1.9">${t("side.hint")}</p>`;
 
   const cellCount = (tid) => DB.cells.filter((c) => (c.theories || []).includes(tid)).length;
   const edgeCount = (tid) => DB.edges.filter((e) => e.f === tid || e.t === tid).length;
@@ -262,34 +270,34 @@
     const tb = $("#graph-toolbar");
     const inSt = "width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(255,240,220,.15);color:#f3ebdc;font-size:12px;padding:6px 12px;border-radius:999px;margin-bottom:0";
     tb.innerHTML =
-      `<div style="display:flex;justify-content:space-between;align-items:center"><div class="gt-lbl" style="margin:0">图控</div><button class="fbtn" id="tb-hide">隐藏 ▾</button></div>` +
-      `<div><input id="g-search" placeholder="搜理论/学者/谱系(中英)…" style="${inSt}"><div id="g-results"></div></div>` +
-      `<div><div class="gt-lbl">视图</div><div class="gt-row">` +
-        `<button class="fbtn${viewMode === "core" ? " on" : ""}" data-view2="core" title="连接最密的 60 个枢纽理论——先看懂地标">核心 ${CORE.size}</button>` +
-        `<button class="fbtn${viewMode === "main" ? " on" : ""}" data-view2="main" title="谱系长链上的骨干理论——理论传承脉络">主线 ${BACKBONE.size}</button>` +
-        `<button class="fbtn${viewMode === "all" ? " on" : ""}" data-view2="all" title="显示全部理论节点">全部 ${DB.theories.length}</button>` +
+      `<div style="display:flex;justify-content:space-between;align-items:center"><div class="gt-lbl" style="margin:0">${t("tb.panel")}</div><button class="fbtn" id="tb-hide">${t("tb.hide")}</button></div>` +
+      `<div><input id="g-search" placeholder="${t("tb.search")}" style="${inSt}"><div id="g-results"></div></div>` +
+      `<div><div class="gt-lbl">${t("tb.view")}</div><div class="gt-row">` +
+        `<button class="fbtn${viewMode === "core" ? " on" : ""}" data-view2="core" title="${t("tb.core.title")}">${t("tb.core")} ${CORE.size}</button>` +
+        `<button class="fbtn${viewMode === "main" ? " on" : ""}" data-view2="main" title="${t("tb.main.title")}">${t("tb.main")} ${BACKBONE.size}</button>` +
+        `<button class="fbtn${viewMode === "all" ? " on" : ""}" data-view2="all" title="${t("tb.all.title")}">${t("tb.all")} ${DB.theories.length}</button>` +
       `</div></div>` +
-      `<div><div class="gt-lbl">着色</div><div class="gt-row">` +
-        `<button class="fbtn on" data-mode="disc">学科</button>` +
-        `<button class="fbtn" data-mode="school">谱系</button>` +
-        `<button class="fbtn" data-mode="cell">阶级×阶段</button>` +
+      `<div><div class="gt-lbl">${t("tb.color")}</div><div class="gt-row">` +
+        `<button class="fbtn on" data-mode="disc">${t("tb.by.disc")}</button>` +
+        `<button class="fbtn" data-mode="school">${t("tb.by.school")}</button>` +
+        `<button class="fbtn" data-mode="cell">${t("tb.by.cell")}</button>` +
       `</div></div>` +
-      `<div id="cell-sel" style="display:none"><div class="gt-lbl">按阶段 × 阶层点亮</div><div class="gt-row">` +
-        `<select id="cell-stage"><option value="all">全部阶段</option>${DB.stages.map((s) => `<option value="${s.id}">${s.cn}</option>`).join("")}</select>` +
-        `<select id="cell-cls"><option value="all">全部阶级</option>${DB.classes.map((c) => `<option value="${c.id}">${c.cn}</option>`).join("")}</select>` +
+      `<div id="cell-sel" style="display:none"><div class="gt-lbl">${t("tb.cellpick")}</div><div class="gt-row">` +
+        `<select id="cell-stage"><option value="all">${t("tb.allstage")}</option>${DB.stages.map((s) => `<option value="${s.id}">${sname(s.id)}</option>`).join("")}</select>` +
+        `<select id="cell-cls"><option value="all">${t("tb.allcls")}</option>${DB.classes.map((c) => `<option value="${c.id}">${cname(c.id)}</option>`).join("")}</select>` +
       `</div></div>` +
-      `<div><div class="gt-lbl">学科</div><div class="gt-row">` +
-        Object.keys(DISC).map((k) => `<button class="fbtn on" data-disc="${k}" style="color:${DCOL[k]}">${DISC[k]}</button>`).join("") +
-      `</div></div><div><div class="gt-lbl">关系</div><div class="gt-row">` +
-        Object.keys(ET).map((k) => `<button class="fbtn on" data-edge="${k}" style="color:${ECOL[k]}">${ET[k]}</button>`).join("") +
-      `</div></div><div><div class="gt-lbl">证据</div><div class="gt-row">` +
-        Object.keys(EV).map((k) => `<button class="fbtn on" data-ev="${k}">${EV[k]}</button>`).join("") +
-      `</div></div><div><div class="gt-lbl">操作</div><div class="gt-row">` +
-        `<button class="fbtn" id="g-center">◎ 置中</button>` +
-        `<button class="fbtn${labelOn ? " on" : ""}" id="g-labels">标签</button>` +
-        `<button class="fbtn" id="g-reset">重置高亮</button>` +
-      `</div></div><div><div class="gt-lbl">其余节点</div><div class="gt-row">` +
-        `<select id="lit-mode"><option value="dim">淡化</option><option value="hide">隐藏</option><option value="off">正常</option></select>` +
+      `<div><div class="gt-lbl">${t("tb.disc")}</div><div class="gt-row">` +
+        Object.keys(DISC).map((k) => `<button class="fbtn on" data-disc="${k}" style="color:${DCOL[k]}">${dname(k)}</button>`).join("") +
+      `</div></div><div><div class="gt-lbl">${t("tb.edge")}</div><div class="gt-row">` +
+        Object.keys(ET).map((k) => `<button class="fbtn on" data-edge="${k}" style="color:${ECOL[k]}">${ename(k)}</button>`).join("") +
+      `</div></div><div><div class="gt-lbl">${t("tb.ev")}</div><div class="gt-row">` +
+        Object.keys(EV).map((k) => `<button class="fbtn on" data-ev="${k}">${evname(k)}</button>`).join("") +
+      `</div></div><div><div class="gt-lbl">${t("tb.ops")}</div><div class="gt-row">` +
+        `<button class="fbtn" id="g-center">${t("tb.center")}</button>` +
+        `<button class="fbtn${labelOn ? " on" : ""}" id="g-labels">${t("tb.labels")}</button>` +
+        `<button class="fbtn" id="g-reset">${t("tb.reset")}</button>` +
+      `</div></div><div><div class="gt-lbl">${t("tb.rest")}</div><div class="gt-row">` +
+        `<select id="lit-mode"><option value="dim">${t("tb.dim")}</option><option value="hide">${t("tb.hidem")}</option><option value="off">${t("tb.off")}</option></select>` +
       `</div></div>`;
 
     $$("[data-view2]", tb).forEach((b) => b.addEventListener("click", () => setView(b.dataset.view2)));
@@ -330,7 +338,7 @@
       box.innerHTML = "";
       if (!q) { clearLit(); return; }
       const hits = DB.theories.filter((t) => matchT(t, q)).slice(0, 12);
-      if (!hits.length) { box.innerHTML = `<div class="sres" style="color:var(--txt-dim)">无匹配</div>`; return; }
+      if (!hits.length) { box.innerHTML = `<div class="sres" style="color:var(--txt-dim)">${t("tb.search.none")}</div>`; return; }
       hits.forEach((t) => {
         const d = document.createElement("div");
         d.className = "sres";
@@ -347,7 +355,7 @@
     $("#tb-toggle").addEventListener("click", () => { tb.style.display = ""; $("#tb-toggle").style.display = "none"; });
     $("#g-center").addEventListener("click", () => fg.zoomToFit(900, 70));
     $("#g-labels").addEventListener("click", () => { labelOn = !labelOn; $("#g-labels").classList.toggle("on", labelOn); applyColors(); });
-    $("#g-reset").addEventListener("click", () => { clearLit(); $("#g-search").value = ""; $("#g-results").innerHTML = ""; $("#graph-side").innerHTML = SIDE_DEF; });
+    $("#g-reset").addEventListener("click", () => { clearLit(); $("#g-search").value = ""; $("#g-results").innerHTML = ""; $("#graph-side").innerHTML = SIDE_DEF(); });
     $("#lit-mode").addEventListener("change", (e) => { litMode = e.target.value; refreshData(); applyColors(); });
   }
 
@@ -407,7 +415,7 @@
           flyTo({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, z: (a.z + b.z) / 2 }, 150);
         }
       })
-      .onBackgroundClick(() => { clearLit(); $("#graph-side").innerHTML = SIDE_DEF; })
+      .onBackgroundClick(() => { clearLit(); $("#graph-side").innerHTML = SIDE_DEF(); })
       .warmupTicks(140)
       .cooldownTicks(320)
       .onEngineStop(() => {
@@ -467,52 +475,52 @@
 
   function showNode(tid) {
     const t = theorySafe(tid);
-    const d = DISC[t.disc] || "—";
+    const d = dname(t.disc) || "—";
     const cells = DB.cells.filter((c) => (c.theories || []).includes(tid));
     const rels = DB.edges.filter((e) => e.f === tid || e.t === tid);
     const mates = t.school ? DB.theories.filter((x) => x.school === t.school) : [];
     const founder = t.school && yrOf(t) <= Math.min(...mates.map(yrOf)) + 2;
     const chain = lineageChain(tid);
     const linNodes = chain.length > 1 ? chain : [...mates].sort((a, b) => yrOf(a) - yrOf(b));
-    const linLabel = chain.length > 1 ? "谱系脉络 LINEAGE" : "同学派成员 SCHOOL";
+    const linLabel = chain.length > 1 ? t("nd.lineage") : t("nd.school");
     const TYPE_ORDER = ["genealogy", "tension", "coupling", "produces", "operationalizes"];
-    const TYPE_HINT = { tension: "· 对比观点", coupling: "· 互补视角", genealogy: "· 理论谱系", produces: "· 衍生", operationalizes: "· 落地为方法" };
+    const TYPE_HINT = { tension: t("rel.tension"), coupling: t("rel.coupling"), genealogy: t("rel.genealogy"), produces: t("rel.produces"), operationalizes: t("rel.operationalizes") };
     const relsByType = {};
     rels.forEach((e) => (relsByType[e.type] = relsByType[e.type] || []).push(e));
     const side = $("#graph-side");
     side.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div class="gt-lbl">理论节点</div><button class="wiki-btn" id="nd-wiki" title="联网查询维基百科">维基 ⇗</button>
+        <div class="gt-lbl">${t("side.node")}</div><button class="wiki-btn" id="nd-wiki" title="${t("nd.wiki.title")}">Wiki ⇗</button>
       </div>
-      <h3 class="theory-title" data-theory="${t.id}" title="点击在图中居中" style="color:${dcol(t)}">${esc(t.cn)}</h3>
+      <h3 class="theory-title" data-theory="${t.id}" title="${t("nd.center")}" style="color:${dcol(t)}">${esc(t.cn)}</h3>
       <div class="en">${esc(t.en)}</div>
       <div class="badges">
-        <span class="badge" style="color:${dcol(t)};background:${dcol(t)}20">学科 · ${d}</span>
-        ${t.school ? `<span class="badge" style="color:${scol(t.school)};background:${scol(t.school)}1f">学派 · ${esc(t.school)}谱系${mates.length ? " · " + mates.length + "节点" : ""}</span>` : `<span class="badge dim">学派 · 独立视角</span>`}
-        ${founder ? `<span class="badge gold">奠基文本</span>` : ""}
-        <span class="badge dim">${rels.length} 条关系</span>
+        <span class="badge" style="color:${dcol(t)};background:${dcol(t)}20">${t("nd.disc")} · ${d}</span>
+        ${t.school ? `<span class="badge" style="color:${scol(t.school)};background:${scol(t.school)}1f">${t("nd.schooltag")} · ${esc(t.school)}${mates.length ? " · " + mates.length + t("nd.school.nodes") : ""}</span>` : `<span class="badge dim">${t("nd.school.solo")}</span>`}
+        ${founder ? `<span class="badge gold">${t("nd.founder")}</span>` : ""}
+        <span class="badge dim">${rels.length} ${t("nd.edgeN")}</span>
       </div>
-      <div class="meta">提出：${esc(t.scholar)} <button class="wiki-btn mini" id="nd-wiki-s" title="查学者的维基条目">↗</button> · ${esc(t.work)}${t.year ? " (" + esc(t.year) + ")" : ""}${CITES[t.id] ? " · 被引 " + CITES[t.id].toLocaleString() : ""}</div>
+      <div class="meta">${t("nd.by")}${esc(t.scholar)} <button class="wiki-btn mini" id="nd-wiki-s" title="${t("nd.wiki.scholar")}">↗</button> · ${esc(t.work)}${t.year ? " (" + esc(t.year) + ")" : ""}${CITES[t.id] ? " · " + t("nd.cited") + " " + CITES[t.id].toLocaleString() : ""}</div>
       <div class="body core-line">${esc(t.core)}</div>
       ${t.ref ? `<div class="refs">⌁ ${esc(t.ref)}</div>` : ""}
       ${linNodes.length > 1 ? `<div class="rel"><div class="expand-toggle" id="lin-t"><span>${linLabel} (${linNodes.length})</span><span class="arrow">▸</span></div>
         <div class="expand-body lin-box" id="lin-b">${linNodes.map((n) =>
           `<div class="lin-item${n.id === t.id ? " cur" : ""}" data-theory="${n.id}"><span class="yr">${esc(n.year || "—")}</span><span><span class="nm">${esc(n.cn)}</span> <span class="sc">${esc(n.school || DISC[n.disc])} · ${esc(n.scholar)}</span></span></div>`).join("")}
         </div></div>` : ""}
-      ${t.detail ? `<div class="rel"><div class="gt-lbl">详解 DETAIL</div><div class="detail-txt">${esc(t.detail)}</div></div>` : ""}
-      ${(t.links && t.links.length) ? `<div class="rel"><div class="gt-lbl">原文出处 SOURCES</div><div class="links">${t.links.map((l) => `<a class="link-item" data-url="${esc(l.u)}">${esc(l.t)} ↗</a>`).join("")}</div></div>` : ""}
-      <div class="rel"><div class="gt-lbl">出现的格位 CELLS (${cells.length})</div>
+      ${t.detail ? `<div class="rel"><div class="gt-lbl">${t("nd.detail")}</div><div class="detail-txt">${esc(t.detail)}</div></div>` : ""}
+      ${(t.links && t.links.length) ? `<div class="rel"><div class="gt-lbl">${t("nd.src")}</div><div class="links">${t.links.map((l) => `<a class="link-item" data-url="${esc(l.u)}">${esc(l.t)} ↗</a>`).join("")}</div></div>` : ""}
+      <div class="rel"><div class="gt-lbl">${t("nd.cellsN")} (${cells.length})</div>
         ${cells.map((c) => `<div class="rel-item">▸ ${sname(c.stage)} × ${cname(c.cls)}</div>`).join("") || "<div class='rel-item'>—</div>"}
       </div>
-      <div class="rel"><div class="gt-lbl">RELATIONS 相关观点 (${rels.length})</div>
+      <div class="rel"><div class="gt-lbl">${t("nd.relsN")} (${rels.length})</div>
         ${TYPE_ORDER.filter((k) => relsByType[k]).map((k) => `
-          <div class="rg-head" style="color:${ECOL[k]}">■ ${ET[k]}${TYPE_HINT[k] || ""} (${relsByType[k].length})</div>
+          <div class="rg-head" style="color:${ECOL[k]}">■ ${ename(k)}${TYPE_HINT[k] || ""} (${relsByType[k].length})</div>
           ${relsByType[k].map((e) => {
             const other = theorySafe(e.f === tid ? e.t : e.f);
             const dir = e.f === tid ? "→" : "←";
             return `<div class="rel-item">${dir} <a class="rel-link" data-theory="${other.id}">${esc(other.cn)}</a>
               <span class="rg-meta">${esc(other.school || DISC[other.disc])} · ${esc(other.scholar)}</span><br>
-              <span style="color:var(--txt-dim)">${esc(e.label)}${e.ev ? ` · ${EV[e.ev]}` : ""}</span></div>`;
+              <span style="color:var(--txt-dim)">${esc(e.label)}${e.ev ? ` · ${evname(e.ev)}` : ""}</span></div>`;
           }).join("")}`).join("") || "<div class='rel-item'>—</div>"}
       </div>`;
     side.querySelectorAll("[data-theory]").forEach((a) =>
@@ -532,7 +540,7 @@
   async function openWiki(t, kind) {
     wcEl.classList.remove("max"); wcEl.classList.add("open");
     const body = $(".wc-body", wcEl);
-    body.innerHTML = `<span style="color:var(--txt-dim)">检索维基百科…</span>`;
+    body.innerHTML = `<span style="color:var(--txt-dim)">${t("wc.searching")}</span>`;
     const akas = (t.aka || "").split(" ").filter((x) => x.length > 1);
     const qs = kind === "scholar"
       ? [...new Set([t.scholar, ...akas, t.en].filter((x) => x && x.length > 1))]
@@ -570,8 +578,8 @@
     push(zhExact);
     (await zhP).flat().forEach(push);
     if (!titles.length && !enSummary) {
-      body.innerHTML = `<span style="color:var(--txt-dim)">未找到匹配的维基条目。</span>
-        <div class="wc-src"><a class="rel-link" id="wc-fb">在维基百科搜索「${esc(qs[0] || t.cn)}」 ↗</a></div>`;
+      body.innerHTML = `<span style="color:var(--txt-dim)">${t("wc.none")}</span>
+        <div class="wc-src"><a class="rel-link" id="wc-fb">${t("nd.wiki")}「${esc(qs[0] || t.cn)}」 ↗</a></div>`;
       $("#wc-fb").addEventListener("click", () =>
         ask("https://zh.wikipedia.org/wiki/Special:Search?search=" + encodeURIComponent(qs[0] || t.cn)));
       return;
@@ -580,18 +588,18 @@
       body.innerHTML = `${j.thumbnail ? `<img src="${esc(j.thumbnail.source)}" alt="">` : ""}
         <b style="color:var(--txt-hi)">${tag ? `<span class="wc-tag">${tag}</span>` : ""}${esc(j.title)}</b><p style="margin-top:6px">${esc(j.extract)}</p>
         <div class="wc-chips">${titles.filter((x) => x !== curTitle).slice(0, 4).map((x) => `<button class="wc-chip" data-t="${esc(x)}">${esc(x)}</button>`).join("")}</div>
-        <div class="wc-src"><a class="rel-link" id="wc-more">阅读维基全文 ↗</a></div>`;
+        <div class="wc-src"><a class="rel-link" id="wc-more">${t("wc.full")} ↗</a></div>`;
       $("#wc-more").addEventListener("click", () => ask(j.content_urls.desktop.page));
       $$(".wc-chip", body).forEach((b) => b.addEventListener("click", () => loadZhTitle(b.dataset.t)));
     }
     async function loadZhTitle(title) {
-      body.innerHTML = `<span style="color:var(--txt-dim)">载入「${esc(title)}」…</span>`;
+      body.innerHTML = `<span style="color:var(--txt-dim)">${t("wc.loading")}「${esc(title)}」…</span>`;
       let j = null;
       try {
         const r = await fetch("https://zh.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(title));
         if (r.ok) j = await r.json();
       } catch (e) {}
-      if (!j || !j.extract) { body.innerHTML = `<span style="color:var(--txt-dim)">「${esc(title)}」无摘要。</span>`; return; }
+      if (!j || !j.extract) { body.innerHTML = `<span style="color:var(--txt-dim)">「${esc(title)}」${t("wc.noextract")}</span>`; return; }
       renderHit(j, j.title);
     }
     if (zhExact) loadZhTitle(zhExact);
@@ -606,9 +614,7 @@
   function openShareModal(cv, p, ty) {
     smCtx = { cv, p, ty };
     $("#sm-img").src = cv.toDataURL("image/png");
-    $("#sm-tip").innerHTML = isTouch
-      ? "手机上可<b>长按图片</b>直接保存→发到微信；或点「分享…」调起系统面板，选微信好友/朋友圈。"
-      : "点「保存图片」存到本地，再到微信里发给朋友；也可以复制文案一起发。";
+    $("#sm-tip").innerHTML = isTouch ? t("sm.tip.touch") : t("sm.tip.desktop");
     $("#sm-share").style.display = (isTouch || navigator.share) ? "" : "none";
     smEl.classList.add("open");
   }
@@ -627,9 +633,9 @@
     if (!smCtx) return;
     try {
       await navigator.clipboard.writeText(shareText(smCtx.p, smCtx.ty));
-      e.target.textContent = "已复制 ✓";
-      setTimeout(() => { e.target.textContent = "复制文案"; }, 1500);
-    } catch (err) { prompt("复制以下内容：", shareText(smCtx.p, smCtx.ty)); }
+      e.target.textContent = t("rep.copied");
+      setTimeout(() => { e.target.textContent = t("sm.copy"); }, 1500);
+    } catch (err) { prompt(t("alert.copy"), shareText(smCtx.p, smCtx.ty)); }
   });
   $("#sm-share").addEventListener("click", () => {
     if (!smCtx) return;
@@ -637,12 +643,12 @@
     cv.toBlob(async (blob) => {
       const file = new File([blob], `人生型格-${ty.key}.png`, { type: "image/png" });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try { await navigator.share({ files: [file], title: "我的人生型格", text: shareText(p, ty) }); } catch (e) {}
+        try { await navigator.share({ files: [file], title: t("sm.sharetitle"), text: shareText(p, ty) }); } catch (e) {}
       } else if (navigator.share) {
-        try { await navigator.share({ title: "我的人生型格", text: shareText(p, ty) }); }
-        catch (e) { tip.innerHTML = "分享被取消了——可以直接保存图片，再发到微信。"; }
+        try { await navigator.share({ title: t("sm.sharetitle"), text: shareText(p, ty) }); }
+        catch (e) { tip.innerHTML = t("sm.tip.cancel"); }
       } else {
-        tip.innerHTML = "当前浏览器不支持直接分享——点「保存图片」，然后到微信里发送就好。";
+        tip.innerHTML = t("sm.tip.unsupported");
       }
     }, "image/png");
   });
@@ -652,8 +658,8 @@
     const a = theorySafe(e.f), b = theorySafe(e.t);
     $("#graph-side").innerHTML = `
       <div class="gt-lbl">EDGE · RELATION</div>
-      <h3><span style="color:${ECOL[e.type]}">[${ET[e.type]} ${e.type.toUpperCase()}]</span></h3>
-      <div class="meta"><a class="rel-link" data-theory="${e.f}">${esc(a.cn)}</a> ${e.type === "tension" ? "⇄" : "→"} <a class="rel-link" data-theory="${e.t}">${esc(b.cn)}</a> · 强度 ${e.s || "—"}/5${e.ev ? " · " + EV[e.ev] : ""}</div>
+      <h3><span style="color:${ECOL[e.type]}">[${ename(e.type)} ${e.type.toUpperCase()}]</span></h3>
+      <div class="meta"><a class="rel-link" data-theory="${e.f}">${esc(a.cn)}</a> ${e.type === "tension" ? "⇄" : "→"} <a class="rel-link" data-theory="${e.t}">${esc(b.cn)}</a> · ${t("edge.s")} ${e.s || "—"}/5${e.ev ? " · " + evname(e.ev) : ""}</div>
       <div class="body"><b style="color:var(--txt-hi)">${esc(e.label)}</b></div>
       <div class="detail-txt">${esc(e.m || "")}</div>`;
     $("#graph-side").querySelectorAll("[data-theory]").forEach((a) =>
@@ -664,7 +670,7 @@
   function renderDeep() {
     const el = $("#view-deep");
     if (!el || !DB.deepdives) return;
-    el.innerHTML = `<h2><span class="idx">§</span>跨学科联合阐述 DEEP DIVE</h2>` +
+    el.innerHTML = `<h2><span class="idx">§</span>${t("deep.h")}</h2>` +
       DB.deepdives.map((d, i) => `
       <h2><span class="idx">Q${i + 1}</span>${esc(d.title)}</h2>
       <div class="body">${d.body}</div>`).join("");
@@ -674,8 +680,8 @@
   function renderBounds() {
     const el = $("#view-bounds");
     if (!el || !DB.boundaries) return;
-    el.innerHTML = `<h2><span class="idx">§</span>理论的内部冲突与边界 CRITICAL BOUNDARIES</h2>
-      <p class="lede">模型的边界条件 —— 不可调和矛盾与解释力盲区。</p>` +
+    el.innerHTML = `<h2><span class="idx">§</span>${t("bounds.h")}</h2>
+      <p class="lede">${t("bounds.lede")}</p>` +
       DB.boundaries.map((b, i) => `<h4>${i + 1}. ${esc(b.t)}</h4><div class="body">${b.body}</div>`).join("");
   }
   renderBounds();
@@ -728,8 +734,19 @@
     retire: ["meaning", "health"], empty: ["family", "meaning"], parent: ["family", "health"], health2: ["health"], none: [],
   };
 
-  function qOptsOf(q, st) { return (q.optsByStage && (q.optsByStage[st] || q.optsByStage.dft)) || q.opts || []; }
-  function qTitleOf(q, st) { return (q.qByStage && q.qByStage[st]) || q.q; }
+  function qOptsOf(q, st) {
+    const raw = (q.optsByStage && (q.optsByStage[st] || q.optsByStage.dft)) || q.opts || [];
+    if (!isEN() || !window.Q_EN || !Q_EN[q.id]) return raw;
+    const en = Q_EN[q.id].optsByStage && (Q_EN[q.id].optsByStage[st] || Q_EN[q.id].optsByStage.dft) || Q_EN[q.id].opts;
+    if (!en) return raw;
+    return raw.map(([v, l]) => [v, en[String(v)] || l]);
+  }
+  function qTitleOf(q, st) {
+    if (isEN() && window.Q_EN && Q_EN[q.id]) {
+      return (Q_EN[q.id].qByStage && Q_EN[q.id].qByStage[st]) || Q_EN[q.id].q || ((q.qByStage && q.qByStage[st]) || q.q);
+    }
+    return (q.qByStage && q.qByStage[st]) || q.q;
+  }
   function qBlock(q, st) {
     const hidden = q.hide && st && q.hide.includes(st) ? ' style="display:none"' : "";
     if (q.type === "range")
@@ -761,13 +778,13 @@
 
   function renderQuiz() {
     $("#quiz-form").innerHTML = `
-      <h3 style="margin-bottom:4px">定位问卷</h3>
-      <p style="color:var(--txt-dim);font-size:12.5px;margin-bottom:8px">花半分钟答几道题。我们会把你放回这张理论地图上：看清此刻卡在什么位置、是什么在塑造你、哪些机制可以借力。回答只存在你自己的浏览器里，不会上传。</p>
+      <h3 style="margin-bottom:4px">${t("quiz.h")}</h3>
+      <p style="color:var(--txt-dim);font-size:12.5px;margin-bottom:8px">${t("quiz.intro")}</p>
       ${QUIZ_CORE.map((q) => qBlock(q, null)).join("")}
       <div id="quiz-deep">${QUIZ_DEEP.map((q) => qBlock(q, null)).join("")}</div>
       <div class="quiz-actions">
-        <button id="quiz-go" class="primary">生成我的定位</button>
-        <button id="quiz-more" class="ghost secondary outline">再答 4 题更准 +</button>
+        <button id="quiz-go" class="primary">${t("quiz.go")}</button>
+        <button id="quiz-more" class="ghost secondary outline">${t("quiz.more")}</button>
       </div>`;
     $("#quiz-more").addEventListener("click", (e) => {
       $("#quiz-deep").classList.add("open"); e.target.style.display = "none";
@@ -846,6 +863,8 @@
     const i = [...p.doms].filter((d) => ["family", "relation", "health", "meaning"].includes(d)).length;
     const ax3 = w >= i ? "W" : "I";
     const code = ax1 + ax2 + ax3;
+    if (isEN() && window.TYPE_EN)
+      return { code, key: `${code}-${p.stage}`, era: TYPE_EN.STAGE_ERA[p.stage], eraLine: TYPE_EN.ERA_LINE[p.stage], ...TYPE_EN.TYPES[code] };
     return { code, key: `${code}-${p.stage}`, era: STAGE_ERA[p.stage], eraLine: ERA_LINE[p.stage], ...TYPES[code] };
   }
 
@@ -858,6 +877,10 @@
 
   /* ---------- 分享卡 ---------- */
   function shareText(p, ty) {
+    if (isEN())
+      return `My life type: ${ty.era}·${ty.name} (${ty.key.toUpperCase()} / 32 types)\n` +
+        `Position: ${sname(p.stage)} × ${cname(p.cls)}\nMotto: ${ty.motto}\n` +
+        `— Class × Life Course theory map (413 theories · 782 relations)`;
     return `我的人生型格：${ty.era}·${ty.name}（${ty.key.toUpperCase()} / 32型）\n` +
       `定位：${sname(p.stage)} × ${cname(p.cls)}\n箴言：${ty.motto}\n` +
       `—— 阶层×生命历程理论图谱 (413理论·782关系)`;
@@ -889,54 +912,55 @@
     x.fillStyle = dim; x.font = "26px 'SF Mono',Menlo,monospace";
     x.fillText("C L A S S  ×  L I F E C O U R S E", W / 2, 90);
     x.fillStyle = dim; x.font = "22px sans-serif";
-    x.fillText("恭 喜 解 锁 人 生 型 格", W / 2, 150);
+    x.fillText(t("card.title"), W / 2, 150);
     const img = new Image();
     await new Promise((res) => { img.onload = res; img.onerror = res; img.src = mascotUrl(ty.key, p.gender); });
     if (img.width) x.drawImage(img, W / 2 - 110, 200, 220, 220);
     x.fillStyle = fg; x.font = "700 64px 'Songti SC','Noto Serif CJK SC',serif";
-    x.fillText(`${STAGE_ERA[p.stage]} · ${ty.name}`, W / 2, 500);
+    x.fillText(`${ty.era} · ${ty.name}`, W / 2, 500);
     x.fillStyle = acc; x.font = "700 34px sans-serif";
     x.fillText(ty.key.toUpperCase(), W / 2, 555);
     x.fillStyle = dim; x.font = "24px sans-serif";
     x.fillText(ty.motto.length > 34 ? ty.motto.slice(0, 34) : ty.motto, W / 2, 615);
     x.fillStyle = fg; x.font = "600 30px sans-serif";
-    x.fillText(`定位：${sname(p.stage)} × ${cname(p.cls)}`, W / 2, 700);
+    x.fillText(`${t("card.loc")}${isEN() ? ": " : "："}${sname(p.stage)} × ${cname(p.cls)}`, W / 2, 700);
     x.fillStyle = dim; x.font = "22px sans-serif";
     ty.trait.forEach((t, i) => { const tw = 190; x.strokeStyle = acc; x.lineWidth = 2;
       const rx = W / 2 - (ty.trait.length * (tw + 16) - 16) / 2 + i * (tw + 16);
       x.beginPath(); x.roundRect(rx, 740, tw, 52, 26); x.stroke();
       x.fillText(t, rx + tw / 2, 776); });
     x.fillStyle = fg; x.font = "600 26px 'Songti SC',serif";
-    x.fillText("塑造你的主干理论", W / 2, 850);
+    x.fillText(t("card.mains"), W / 2, 850);
     x.fillStyle = dim; x.font = "23px sans-serif";
     ranked.slice(0, 3).forEach((r, i) => x.fillText(`· ${r.t.cn} —— ${r.t.scholar}`, W / 2, 905 + i * 52));
     const qrBot = drawQR(x, SITE_URL, W / 2, 1040, 132, fg);
     x.fillStyle = fg; x.font = "600 24px sans-serif";
-    x.fillText("扫码测测你的人生型格", W / 2, qrBot + 42);
+    x.fillText(t("card.qr"), W / 2, qrBot + 42);
     x.fillStyle = dim; x.font = "20px 'SF Mono',Menlo,monospace";
-    x.fillText("阶层 × 生命历程 · 397 theories · 726 edges", W / 2, qrBot + 82);
+    x.fillText(t("card.foot"), W / 2, qrBot + 82);
     return cv;
   }
 
   const DOM_CN = { money: "钱/生计", work: "工作/学业", family: "家庭关系", health: "身心健康", meaning: "意义感", relation: "人际", mobility: "上升通道" };
+  const domname = (d) => (isEN() && window.DOM_EN ? DOM_EN[d] || DOM_CN[d] : DOM_CN[d]);
   function discLegend() {
-    return `<div class="legend-row"><span class="legend-lbl">颜色 = 学科：</span>` +
-      Object.entries(DISC).map(([k, v]) => `<span class="legend-chip" style="color:${DCOL[k]}">● ${v}</span>`).join("") + `</div>`;
+    return `<div class="legend-row"><span class="legend-lbl">${t("mx.legend")}</span>` +
+      Object.keys(DISC).map((k) => `<span class="legend-chip" style="color:${DCOL[k]}">● ${dname(k)}</span>`).join("") + `</div>`;
   }
   /* 人話解讀：把 profile + ranked 譯成三段叙述 */
   function verdictText(p, ty, ranked, levers) {
-    const stageLine = {
+    const stageLine = (isEN() && window.REP_EN ? REP_EN.stageLine : {
       s1: "你还在认知预载期——家庭和学校正在替你写世界的默认参数，很多事不是你选的，但它们已经在起作用",
       s2: "你正在同一性成形期——「我是谁、能到哪去」是这一阶段的核心工程，路径还没锁死，试错成本相对低",
       s3: "你正在相变窗口期——旧轨道和新可能开始错配，这是结构最容易松动、变动成本也最低的一段",
       s4: "你正在整合审计期——开始清点这一程：什么值得留下、什么该放下，重心从扩张转向意义重组",
-    }[p.stage];
-    const clsLine = {
+    })[p.stage];
+    const clsLine = (isEN() && window.REP_EN ? REP_EN.clsLine : {
       c1: "资源受限的一侧——结构的压力对你更直接、缓冲更薄，所以先看清哪些墙是结构砌的、不是你自己的错",
       c2: "中间位置——有缓冲但不厚，向上够得着、向下也掉得起，最大的风险是「看似稳定」带来的错觉",
       c3: "资源较厚的一侧——你的主要议题不是生存而是配置：时间、注意力和意义花在哪儿",
-    }[p.cls];
-    const doms = [...p.doms].map((d) => DOM_CN[d]).filter(Boolean);
+    })[p.cls];
+    const doms = [...p.doms].map((d) => domname(d)).filter(Boolean);
     const top = levers[0];
     const ACT = {
       money: { s1: "家里的钱紧不是你的作业——先把你这份账看明白，别让大人的焦虑长成你的负罪",
@@ -968,18 +992,19 @@
         s3: "赛道比努力值钱：同一能力在不同场域溢价差数倍——先确认天花板是能力问题还是场域问题",
         s4: "中年以后的流动更多是「换层」而非「升级」：从执行到传承（带人/顾问/资产化经验），台阶换材质了" },
     };
+    if (isEN() && window.REP_EN) Object.assign(ACT, REP_EN.ACT);
     const firstDom = [...p.doms][0];
     return `<div class="verdict-block">
-      <div class="gt-lbl" style="margin-bottom:10px">解读 INTERPRETATION</div>
-      <p><b style="color:var(--accent)">你在哪：</b>${stageLine}。按你的作答，阶层位置判定为 <b>${cname(p.cls)}</b>——${clsLine}。</p>
-      <p><b style="color:var(--accent)">什么在压你：</b>你标出的压力集中在 <b>${doms.join("、") || "未标明"}</b>。下面第一栏的理论不是推荐读物，是图纸——先看清困住你的结构长什么样，才不会把它当成自己的失败。</p>
-      <p><b style="color:var(--accent)">可以往哪动：</b>${top ? `与你最匹配的破局杠杆是「<b>${esc(top.t.cn)}</b>」（${esc(top.t.scholar)}）：${esc(top.t.core)} ` : ""}${(ACT[firstDom] && (ACT[firstDom][p.stage] || Object.values(ACT[firstDom])[0])) || "从下面杠杆栏里挑一个最小闭环先跑通。"}</p>
+      <div class="gt-lbl" style="margin-bottom:10px">${t("rep.interp")}</div>
+      <p><b style="color:var(--accent)">${t("rep.where")}${isEN() ? ": " : "："}</b>${stageLine}。${isEN() ? "Based on your answers, your class position reads as" : "按你的作答，阶层位置判定为"} <b>${cname(p.cls)}</b>——${clsLine}${isEN() ? "." : "。"}</p>
+      <p><b style="color:var(--accent)">${t("rep.press")}${isEN() ? ": " : "："}</b>${t("rep.press.body")} <b>${doms.join(isEN() ? ", " : "、") || t("rep.press.none")}</b>${isEN() ? ". " : "。"}${t("rep.press.tail")}</p>
+      <p><b style="color:var(--accent)">${t("rep.move")}${isEN() ? ": " : "："}</b>${top ? `${t("rep.move.lever")} ${isEN() ? `\u201c<b>${esc(top.t.en || top.t.cn)}</b>\u201d (${esc(top.t.scholar)}): ` : `\u300c<b>${esc(top.t.cn)}</b>\u300d\uff08${esc(top.t.scholar)}\uff09\uff1a`}${esc(top.t.core)} ` : ""}${(ACT[firstDom] && (ACT[firstDom][p.stage] || Object.values(ACT[firstDom])[0])) || t("rep.move.dft")}</p>
     </div>`;
   }
 
   function renderReport(p, ranked) {
     const cell = DB.cells.find((c) => c.stage === p.stage && c.cls === p.cls);
-    const wantLbl = { why: "看清困住你的结构", up: "找上行路径", stable: "先稳住不崩", meaning: "找回意义感" }[p.want];
+    const wantLbl = (isEN() && window.REP_EN ? REP_EN.wantLbl : { why: "看清困住你的结构", up: "找上行路径", stable: "先稳住不崩", meaning: "找回意义感" })[p.want];
     const conf = Math.round(Math.max(p.cw.c1, p.cw.c2, p.cw.c3) * 100);
     const structural = ranked.filter((r) => !r.t.lever).slice(0, 6);
     const cellIds = cell ? cell.theories : [];
@@ -988,12 +1013,12 @@
     const levers = ranked.filter((r) => r.t.lever === 1).slice(0, 6);
     const item = (r) => {
       const why = [];
-      if (r.t.stages && r.t.stages.includes(p.stage)) why.push("命中阶段");
+      if (r.t.stages && r.t.stages.includes(p.stage)) why.push(t("rep.hit.stage"));
       const dm = (r.t.domains || []).filter((d) => p.doms.has(d));
-      if (dm.length) why.push("命中域:" + dm.map((d) => DOM_CN[d]).join("/"));
-      if (r.t.lever) why.push("含破局机制");
+      if (dm.length) why.push(t("rep.hit.dom") + dm.map((d) => domname(d)).join("/"));
+      if (r.t.lever) why.push(t("rep.hit.lever"));
       return `<div class="rep-item" data-theory="${r.t.id}">
-        <div class="r-cn" style="color:${DCOL[r.t.disc] || "var(--accent)"}">${esc(r.t.cn)}</div>
+        <div class="r-cn" style="color:${DCOL[r.t.disc] || "var(--accent)"}">${esc(isEN() ? (r.t.en || r.t.cn) : r.t.cn)}</div>
         <div class="r-why">${why.map((w) => `<span>${w}</span>`).join("")}</div>
         <div class="r-core">${esc(r.t.core)}</div>
         <div class="r-meta">${esc(r.t.scholar)} · ${esc(r.t.school || DISC[r.t.disc])}</div></div>`;
@@ -1004,27 +1029,27 @@
         <div class="type-card">
           <img class="type-mascot" src="${mascotUrl(ty.key, p.gender)}" alt="${ty.name}">
           <div class="type-info">
-            <div class="type-eyebrow">恭喜解锁人生型格 · 共 32 型</div>
+            <div class="type-eyebrow">${t("rep.type.eyebrow")}</div>
             <div class="type-name">${ty.era} · ${ty.name}<span class="type-code">${ty.key.toUpperCase()}</span></div>
             <div class="type-motto">${ty.eraLine}｜${ty.motto}</div>
             <div class="type-traits">${ty.trait.map((t) => `<span class="type-trait">${t}</span>`).join("")}</div>
           </div>
         </div>
-        <h3>你的定位：${sname(p.stage)} × ${cname(p.cls)}</h3>
-        <div class="r-meta" style="font-size:11px;color:var(--txt-dim)">定位把握 ${conf}% · 你想要：${wantLbl}</div>
+        <h3>${t("rep.loc")}${isEN() ? ": " : "："}${sname(p.stage)} × ${cname(p.cls)}</h3>
+        <div class="r-meta" style="font-size:11px;color:var(--txt-dim)">${t("rep.conf")} ${conf}% · ${t("rep.want")}${isEN() ? ": " : "："}${wantLbl}</div>
         ${verdictText(p, ty, ranked, levers)}
-        ${cell ? `<details class="cell-raw"><summary>这段处境的学术版原文（${sname(cell.stage)}×${cname(cell.cls)} 格，想深究可展开）</summary><div class="cell-raw-body">${esc(cell.mech)}<br><br>${esc(cell.out)}</div></details>` : ""}
+        ${cell ? `<details class="cell-raw"><summary>${t("rep.raw")}${isEN() ? "(" : "（"}${sname(cell.stage)}×${cname(cell.cls)} ${t("rep.raw.hint")}${isEN() ? ")" : "）"}</summary><div class="cell-raw-body">${esc(cell.mech)}<br><br>${esc(cell.out)}</div></details>` : ""}
         ${discLegend()}
         <div class="report-grid">
-          <div class="rep-col"><h4 style="color:var(--c-tension)">■ 困住你的结构</h4><p class="rep-sub">作用于你定位的宏观机制——先看清墙在哪儿</p>${structural.map(item).join("")}</div>
-          <div class="rep-col"><h4 style="color:var(--c-produces)">■ 你正处的转折点</h4><p class="rep-sub">与你当前阶段×阶层格位直接相关的节点</p>${trans.map(item).join("") || "<div class='rep-item'>—</div>"}</div>
-          <div class="rep-col"><h4 style="color:var(--c-coupling)">■ 破局杠杆</h4><p class="rep-sub">含能动性机制的节点——理论上可借力的位置</p>${levers.map(item).join("")}</div>
+          <div class="rep-col"><h4 style="color:var(--c-tension)">${t("rep.col1")}</h4><p class="rep-sub">${t("rep.col1sub")}</p>${structural.map(item).join("")}</div>
+          <div class="rep-col"><h4 style="color:var(--c-produces)">${t("rep.col2")}</h4><p class="rep-sub">${t("rep.col2sub")}</p>${trans.map(item).join("") || "<div class='rep-item'>—</div>"}</div>
+          <div class="rep-col"><h4 style="color:var(--c-coupling)">${t("rep.col3")}</h4><p class="rep-sub">${t("rep.col3sub")}</p>${levers.map(item).join("")}</div>
         </div>
         <div class="quiz-actions">
-          <button id="rep-graph" class="primary">在图谱中查看我的脉络</button>
-          <button id="rep-share" class="secondary outline">生成分享卡</button>
-          <button id="rep-copy" class="secondary outline">复制文案</button>
-          <button id="rep-redo" class="ghost secondary outline">重测</button>
+          <button id="rep-graph" class="primary">${t("rep.graph")}</button>
+          <button id="rep-share" class="secondary outline">${t("rep.share")}</button>
+          <button id="rep-copy" class="secondary outline">${t("rep.copy")}</button>
+          <button id="rep-redo" class="ghost secondary outline">${t("rep.redo")}</button>
         </div>
       </article>`;
     $("#quiz-form").style.display = "none";
@@ -1032,14 +1057,14 @@
     $$("#quiz-report .rep-item").forEach((el) => el.addEventListener("click", () => openGraphAt(el.dataset.theory)));
     $("#rep-redo").addEventListener("click", () => { $("#quiz-form").style.display = ""; $("#quiz-report").style.display = "none"; });
     $("#rep-copy").addEventListener("click", async (e) => {
-      try { await navigator.clipboard.writeText(shareText(p, ty)); e.target.textContent = "已复制 ✓"; }
-      catch (err) { prompt("复制以下内容：", shareText(p, ty)); }
+      try { await navigator.clipboard.writeText(shareText(p, ty)); e.target.textContent = t("rep.copied"); }
+      catch (err) { prompt(t("alert.copy"), shareText(p, ty)); }
     });
     $("#rep-share").addEventListener("click", async (e) => {
-      e.target.textContent = "生成中…";
+      e.target.textContent = t("rep.share.wait");
       const cv = await makeShareCard(p, ty, ranked);
       openShareModal(cv, p, ty);
-      e.target.textContent = "生成分享卡";
+      e.target.textContent = t("rep.share");
     });
     $("#rep-graph").addEventListener("click", () => {
       const top = new Set(ranked.slice(0, 30).map((r) => r.t.id));
@@ -1048,21 +1073,41 @@
       lit = top;
       litLinks = new Set(); DB.edges.forEach((e, i) => { if (top.has(e.f) && top.has(e.t)) litLinks.add(i); });
       refreshData(); applyColors();
-      $("#graph-side").innerHTML = `<div class="gt-lbl">我的脉络</div>
-        <p style="margin-top:12px;font-size:12.5px">已点亮与你定位匹配的 ${top.size} 个理论节点（其余${litMode === "dim" ? "淡化" : litMode === "hide" ? "隐藏" : "正常"}）。<br>
-        <a class="rel-link" id="back-rep">← 返回定位报告</a></p>`;
+      $("#graph-side").innerHTML = `<div class="gt-lbl">${t("rep.mylines")}</div>
+        <p style="margin-top:12px;font-size:12.5px">${t("rep.lit")} ${top.size} ${t("rep.lit.nodes")}（${t("rep.lit.others")}${litMode === "dim" ? t("rep.lit.dim") : litMode === "hide" ? t("rep.lit.hide") : t("rep.lit.off")}）。<br>
+        <a class="rel-link" id="back-rep">${t("rep.back")}</a></p>`;
       const top1 = ranked[0]; if (top1) focusNode(top1.t.id);
       $("#back-rep").addEventListener("click", () => goView("quiz"));
     });
   }
 
+  let lastP = null, lastRanked = null;
   function submitQuiz() {
     const a = collectAnswers();
-    if (!a.age) { alert("至少选一下年龄段"); return; }
+    if (!a.age) { alert(t("quiz.need.age")); return; }
     const p = computeProfile(a);
-    renderReport(p, scoreTheories(p));
+    lastP = p; lastRanked = scoreTheories(p);
+    renderReport(p, lastRanked);
   }
   renderQuiz();
+
+  /* ---------- 语言切换：重建动态视图并保留问卷答案 ---------- */
+  const langBtn = $("#lang-toggle");
+  if (langBtn) langBtn.addEventListener("click", () => setLang(isEN() ? "zh" : "en"));
+  window.addEventListener("clm:lang", () => {
+    const saved = collectAnswers();
+    const reportOpen = $("#quiz-report").style.display !== "none";
+    renderTabs(); renderMatrix(); renderMxLegend(); renderQuiz();
+    // restore answers
+    Object.entries(saved).forEach(([k, v]) => {
+      if (Array.isArray(v)) v.forEach((x) => { const i = document.querySelector(`input[name="${k}"][value="${x}"]`); if (i) i.checked = true; });
+      else { const i = document.querySelector(`input[name="${k}"][value="${v}"]`) || document.querySelector(`input[name="${k}"][type="range"]`); if (i) { if (i.type === "range") { i.value = v; i.nextElementSibling.textContent = v; } else i.checked = true; } }
+    });
+    if (saved.age) applyStage(saved.age);
+    if (reportOpen && lastP) renderReport(lastP, lastRanked);
+    buildToolbar();
+    renderDeep(); renderBounds();
+  });
 
   /* ---------- 明暗主題 + cover ---------- */
   function drawTri(cv, seed) {

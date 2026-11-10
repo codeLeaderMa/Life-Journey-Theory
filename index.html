@@ -415,54 +415,53 @@
   <i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i>
   <div class="cover-in">
     <div class="cover-eyebrow">CLASS × LIFECOURSE</div>
-    <h1>照见你的位置</h1>
-    <p class="cover-sub">很多「卡住」，不是你不够好，是结构在起作用。<br>
-      这是一张跨学科的解惑图谱——汇集弗洛伊德、布迪厄到格兰诺维特等学者留下的 413 个理论，<br>
-      答一份小问卷，它会告诉你：此刻站在什么位置、是什么在塑造你、哪里可能松动。</p>
-    <button id="cover-enter" class="cover-cta">推 开 这 扇 门</button>
-    <div class="cover-hint" id="cover-hint">正在开门 · 首次加载需要几秒钟…</div>
+    <h1 data-i18n="cover.h1">照见你的位置</h1>
+    <p class="cover-sub" data-i18n-html="cover.sub">很多「卡住」，不是你不够好，是结构在起作用。<br>这是一张跨学科的解惑图谱——汇集弗洛伊德、布迪厄到格兰诺维特等学者留下的 413 个理论，<br>答一份小问卷，它会告诉你：此刻站在什么位置、是什么在塑造你、哪里可能松动。</p>
+    <button id="cover-enter" class="cover-cta" data-i18n="cover.cta">推 开 这 扇 门</button>
+    <div class="cover-hint" id="cover-hint" data-i18n="cover.hint">正在开门 · 首次加载需要几秒钟…</div>
     <div class="cover-sec">
-      <button class="cover-link" data-goto="deep">主线论述</button>
+      <button class="cover-link" data-goto="deep" data-i18n="cover.deep">主线论述</button>
       <span class="dot">·</span>
-      <button class="cover-link" data-goto="bounds">边界与局限</button>
+      <button class="cover-link" data-goto="bounds" data-i18n="cover.bounds">边界与局限</button>
     </div>
-    <div class="cover-stats">9 个学科 · 413 个理论 · 775 条关系 · 全部开源可验证</div>
+    <div class="cover-stats" data-i18n="cover.stats">9 个学科 · 413 个理论 · 782 条关系 · 全部开源可验证</div>
   </div>
   <div class="cover-flash"></div>
 </div>
 <div id="wiki-card">
-  <div class="wc-head"><span>WIKIPEDIA 维基百科</span><span class="wc-btns"><button id="wc-max" title="放大/还原">⛶</button><button id="wc-close" title="关闭">×</button></span></div>
+  <div class="wc-head"><span data-i18n="wc.wiki">WIKIPEDIA 维基百科</span><span class="wc-btns"><button id="wc-max" title="放大/还原">⛶</button><button id="wc-close" title="关闭">×</button></span></div>
   <div class="wc-body"></div>
 </div>
 <div id="link-modal"><div class="box">
-  <div>即将开启外部连结（新分页）：</div>
+  <div data-i18n="link.out">即将开启外部连结（新分页）：</div>
   <div class="url" id="link-modal-url"></div>
-  <div class="btns"><button id="link-cancel">取消</button><button class="go" id="link-go">确认开启</button></div>
+  <div class="btns"><button id="link-cancel" data-i18n="link.cancel">取消</button><button class="go" id="link-go" data-i18n="link.go">确认开启</button></div>
 </div></div>
 <div id="share-modal">
   <div class="sm-back"></div>
   <div class="sm-card">
     <div class="sm-head">
-      <span class="sm-title">你的人生型格卡</span>
+      <span class="sm-title" data-i18n="sm.title">你的人生型格卡</span>
       <button id="sm-close" title="关闭">×</button>
     </div>
     <div class="sm-stage"><img id="sm-img" alt="人生型格分享卡"></div>
     <div class="sm-tip" id="sm-tip"></div>
     <div class="sm-btns">
-      <button id="sm-save" class="primary">保存图片</button>
-      <button id="sm-share">分享…</button>
-      <button id="sm-copy">复制文案</button>
+      <button id="sm-save" class="primary" data-i18n="sm.save">保存图片</button>
+      <button id="sm-share" data-i18n="sm.share">分享…</button>
+      <button id="sm-copy" data-i18n="sm.copy">复制文案</button>
     </div>
   </div>
 </div>
 <header>
-  <h1>阶层 × 生命历程 <span class="dim">一张帮你自我定位的理论地图</span></h1>
-  <div class="sub">9 个学科 · 413 个理论 · 4 个人生阶段 × 3 种阶层处境</div>
+  <h1 data-i18n-html="h1">阶层 × 生命历程 <span class="dim">一张帮你自我定位的理论地图</span></h1>
+  <div class="sub" data-i18n="sub">9 个学科 · 413 个理论 · 4 个人生阶段 × 3 种阶层处境</div>
   <nav>
-    <button data-view="quiz">定位</button>
-    <button data-view="matrix" class="active">矩阵</button>
-    <button data-view="graph">图谱</button>
-    <button id="theme-toggle" style="margin-left:auto" title="切换明暗主题">◐</button>
+    <button data-view="quiz" data-i18n="nav.quiz">定位</button>
+    <button data-view="matrix" class="active" data-i18n="nav.matrix">矩阵</button>
+    <button data-view="graph" data-i18n="nav.graph">图谱</button>
+    <button id="lang-toggle" style="margin-left:auto" title="Switch to English" data-i18n="nav.lang" data-i18n-title="nav.lang.title">EN</button>
+    <button id="theme-toggle" title="切换明暗主题" data-i18n-title="nav.theme">◐</button>
   </nav>
 </header>
 <main>
@@ -479,22 +478,22 @@
   </section>
   <section id="view-graph" class="view">
     <div class="legend">
-      <span class="legend-lbl">线的颜色 = 关系类型：</span>
-      <i style="border-color:var(--c-coupling)"></i>耦合·互补
-      <i style="border-color:var(--c-tension);border-top-style:dashed"></i>张力·对立
-      <i style="border-color:var(--c-genealogy)"></i>谱系·传承
-      <i style="border-color:var(--c-produces)"></i>产出·衍生
-      <i style="border-color:#8a8578;border-top-style:dotted"></i>操作化·落地
-      <span style="margin-left:14px">彩色点 = 理论 · 点的颜色 = 学科 · 拖动旋转 / 滚轮缩放</span>
-      <span style="margin-left:14px">默认显示<b style="color:var(--txt-hi)">核心</b>（60 个枢纽地标）· 可切<b>主线</b>看谱系脉络或<b>全部</b>看完整点云</span>
+      <span class="legend-lbl" data-i18n="legend.edges">线的颜色 = 关系类型：</span>
+      <i style="border-color:var(--c-coupling)"></i><span data-i18n="legend.coupling">耦合·互补</span>
+      <i style="border-color:var(--c-tension);border-top-style:dashed"></i><span data-i18n="legend.tension">张力·对立</span>
+      <i style="border-color:var(--c-genealogy)"></i><span data-i18n="legend.genealogy">谱系·传承</span>
+      <i style="border-color:var(--c-produces)"></i><span data-i18n="legend.produces">产出·衍生</span>
+      <i style="border-color:#8a8578;border-top-style:dotted"></i><span data-i18n="legend.operationalizes">操作化·落地</span>
+      <span style="margin-left:14px" data-i18n="legend.nodes">彩色点 = 理论 · 点的颜色 = 学科 · 拖动旋转 / 滚轮缩放</span>
+      <span style="margin-left:14px" data-i18n-html="legend.views">默认显示<b style="color:var(--txt-hi)">核心</b>（60 个枢纽地标）· 可切<b>主线</b>看谱系脉络或<b>全部</b>看完整点云</span>
     </div>
     <div class="graph-wrap">
       <div style="position:relative;min-height:0">
         <div id="graph"></div>
         <div class="graph-toolbar" id="graph-toolbar"></div>
-        <button id="tb-toggle" title="显示工具栏">☰</button>
+        <button id="tb-toggle" data-i18n-title="tb.show" title="显示工具栏">☰</button>
       </div>
-      <div class="side" id="graph-side"><div class="gt-lbl" style="color:var(--txt-dim)">节点 / 边详情</div><p style="margin-top:14px;color:var(--txt-dim);font-size:12.5px;line-height:1.9">点击节点或边查看详情，点亮的节点会显示标签。<br>拖动旋转，滚轮缩放，拖节点可重排。</p></div>
+      <div class="side" id="graph-side"><div class="gt-lbl" style="color:var(--txt-dim)" data-i18n="side.title">节点 / 边详情</div><p style="margin-top:14px;color:var(--txt-dim);font-size:12.5px;line-height:1.9" data-i18n-html="side.hint">点击节点或边查看详情，点亮的节点会显示标签。<br>拖动旋转，滚轮缩放，拖节点可重排。</p></div>
     </div>
   </section>
   <section id="view-deep" class="view doc"></section>
@@ -505,6 +504,7 @@
 <script src="lib/trianglify.min.js"></script>
 <script src="lib/qrcode.min.js"></script>
 <script src="mascots.js"></script>
+<script src="i18n.js"></script>
 <script type="module">
 import * as THREE from './lib/three.module.min.js';
 window.THREE = THREE;

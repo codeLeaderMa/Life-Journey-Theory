@@ -82,7 +82,7 @@ def build():
     three = demodule_three()
     parts = [three, clean_js(read("lib/three-spritetext.min.js")), clean_js(read("lib/3d-force-graph.min.js")),
              clean_js(read("lib/trianglify.min.js")), clean_js(read("lib/qrcode.min.js"))]
-    for f in ["mascots.js", "nodes_soc.js", "nodes_dev.js", "nodes_econ.js", "nodes_psy.js", "nodes_pol.js",
+    for f in ["mascots.js", "i18n.js", "nodes_soc.js", "nodes_dev.js", "nodes_econ.js", "nodes_psy.js", "nodes_pol.js",
               "nodes_exi.js", "nodes_anth.js", "nodes_bio.js", "nodes_fam.js", "nodes_new_c.js", "nodes_new_d.js",
               "citations.js", "data.js", "app.js"]:
         parts.append(clean_js(read(f)))
@@ -105,7 +105,7 @@ def build():
 
 
 SITE_FILES = [
-    "index.html", "app.js", "data.js", "citations.js", "mascots.js",
+    "index.html", "app.js", "data.js", "citations.js", "mascots.js", "i18n.js",
     "nodes_soc.js", "nodes_dev.js", "nodes_econ.js", "nodes_psy.js", "nodes_pol.js",
     "nodes_exi.js", "nodes_anth.js", "nodes_bio.js", "nodes_fam.js", "nodes_new_c.js", "nodes_new_d.js",
     "lib/pico.min.css", "lib/trianglify.min.js", "lib/qrcode.min.js",

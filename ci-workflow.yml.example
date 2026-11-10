@@ -1,0 +1,15 @@
+# GitHub Actions CI — move this file to .github/workflows/validate.yml to enable.
+# (Pushing a file into .github/workflows/ requires a token with `workflow` scope;
+#  creating it via the GitHub web UI works without it.)
+name: validate-data
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node validate.mjs
+      - run: python3 build_dist.py
