@@ -32,7 +32,7 @@
 | | 无障碍：键盘导航、对比度、reduce-motion | 开源项目基本修养 | P2 |
 | **传播** | 分享卡迭代：二维码已上；加「测一测你的朋友」邀请语 | 增长靠分享 | P1 |
 | | 部署双轨：Netlify + GitHub Pages（/site） | 访问稳定性 | P1 |
-| | ~~CI 数据校验（validate.mjs + GitHub Actions）~~ ✅ 已完成 | 开源协作前提 | — |
+| | ~~CI 数据校验~~ ✅ validate.mjs 本地跑通；Actions 待启用（ci-workflow.yml.example） | 开源协作前提 | — |
 | | README 英文版完整化 + GIF 演示 | 开源曝光 | P2 |
 | **工程健康** | ~~自动化测试：数据完整性进 CI~~ ✅ validate.mjs + workflow | 开源协作前提 | — |
 | | 每次发版跑 headless 截图回归（封面/问卷/矩阵/图谱/报告/分享卡） | 防视觉回归 | P2 |
@@ -93,7 +93,7 @@
 - [ ] 节点详情「一句话解读」置顶；维基命中监控 + 失败词表迭代
 - [ ] 移动端性能：sprite 标签分级加载、低端机关粒子、prefers-reduced-motion
 - [ ] 分享卡 A/B：加一个竖版长图版式（朋友圈友好）
-- [x] CI：数据完整性（validate.mjs）+ build 冒烟 ✅ `c215622` 起每次 push 自动跑
+- [x] CI：validate.mjs 本地数据校验 ✅；`ci-workflow.yml.example` 挪进 .github/workflows/ 即启用 Actions（需 PAT workflow scope 或网页创建）
 
 ### Phase 2 — 扩展与传播
 
