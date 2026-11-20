@@ -880,10 +880,10 @@
     if (isEN())
       return `My life type: ${ty.era}·${ty.name} (${ty.key.toUpperCase()} / 32 types)\n` +
         `Position: ${sname(p.stage)} × ${cname(p.cls)}\nMotto: ${ty.motto}\n` +
-        `— Class × Life Course theory map (413 theories · 782 relations)`;
+        `— Class × Life Course theory map (414 theories · 864 relations)`;
     return `我的人生型格：${ty.era}·${ty.name}（${ty.key.toUpperCase()} / 32型）\n` +
       `定位：${sname(p.stage)} × ${cname(p.cls)}\n箴言：${ty.motto}\n` +
-      `—— 阶层×生命历程理论图谱 (413理论·782关系)`;
+      `—— 阶层×生命历程理论图谱 (414理论·864关系)`;
   }
   const SITE_URL = "https://lifejourneywiththeory.netlify.app";
   function drawQR(x, url, cx, top, box, fg) {
