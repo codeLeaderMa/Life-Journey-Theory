@@ -14,7 +14,7 @@
 这是一个交互式知识图谱产品：答一份会随年龄自适应的小问卷，它会把你放进
 **4 个人生阶段 × 3 种阶层处境**的矩阵里，告诉你——此刻站在什么位置、
 是什么在塑造你、哪里可能松动。背后是来自社会学、心理学、经济学、人类学等
-9 个学科的 **397 个理论节点**与 **726 条带类型和证据等级的关系边**，
+9 个学科的 **413 个理论节点**与 **791 条带类型和证据等级的关系边**，
 从弗洛伊德、布迪厄到格兰诺维特，都可以在 3D 图谱里点开、追谱系、查维基、看对立观点。
 测完还能解锁 32 种「人生型格」之一，生成分享卡发给朋友。
 
@@ -25,12 +25,13 @@ A lot of what feels like being "stuck" isn't personal failure — it's structure
 This is an interactive knowledge-graph product: answer a short, age-adaptive
 questionnaire and it places you inside a matrix of **4 life stages × 3 class
 positions**, then shows you where you stand, what is shaping you, and where
-things might still move. Behind it are **397 theory nodes** and **726 typed,
+things might still move. Behind it are **413 theory nodes** and **791 typed,
 evidence-graded edges** drawn from 9 disciplines — sociology, psychology,
 economics, anthropology and more. Every theory — Freud, Bourdieu, Granovetter —
 can be clicked open in a 3D graph, traced through its lineage, checked against
 Wikipedia, and read alongside its critics. Finish the quiz to unlock one of 32
-"Life Archetypes" and a shareable card. The UI is in Simplified Chinese.
+"Life Archetypes" and a shareable card. The UI is bilingual — toggle 中/EN in
+the nav bar; the theory corpus itself is Chinese-first.
 
 **在线体验 · Live**: https://lifejourneywiththeory.netlify.app
 
@@ -40,7 +41,7 @@ Wikipedia, and read alongside its critics. Finish the quiz to unlock one of 32
 
 ### A. 单文件版（可分享，推荐）
 
-`dist/class-lifecourse-matrix.html`（约 3.2 MB）—— 所有 JS/CSS/three.js 全部内嵌，
+`dist/class-lifecourse-matrix.html`（约 3.7 MB）—— 所有 JS/CSS/three.js 全部内嵌，
 **双击即可用，无需服务器**，可直接 AirDrop / 微信 / 邮件发送。
 
 重新构建（改了任何源码后跑一次）：
@@ -66,6 +67,7 @@ hash 直连：`/#matrix`、`/#graph`、`/#graph:节点id`、`/#deep`、`/#bounds
 ## 图谱交互
 
 - **3D 力导向**：拖动旋转 / 滚轮缩放 / 拖节点重排；张力边带方向粒子
+- **三档视图**：`核心`（60 个枢纽地标）→ `主线`（谱系长链骨干）→ `全部`（完整点云），默认核心避免毛线球
 - **着色模式**：学科 / 谱系(school) / 阶级×阶段（选格位点亮其理论，按谱系着色）
 - **搜索**：下拉结果列表，匹配 `cn`/`en`/`scholar`/`school`/`work`/`aka`（含中文译名，
   搜「加缪」「荣格」「弗洛伊德」均可）；点结果 → 点亮其整个知识谱系 + 相机聚焦
@@ -108,6 +110,8 @@ hash 直连：`/#matrix`、`/#graph`、`/#graph:节点id`、`/#deep`、`/#bounds
 - 导航最右 `◐` 切换明暗，记忆于 localStorage；3D 画布与图控面板固定暖深色
 - 封面 hero 用 **Trianglify**（`lib/trianglify.min.js`，GPLv3）生成暖色三角网格，
   随主题切换重绘，seed 固定保证一致性
+- **双语界面**：导航栏 `中/EN` 一键切换并记忆（localStorage）；界面 chrome、
+  问卷、报告文案全双语，理论语料仍为简体中文（`i18n.js`）
 - **进入页**：首次打开显示全屏 cover（trianglify 底 + 悬浮光斑 + 衬线标题），
   「推开这扇门」CTA 穿门动画进入问卷；「主线论述」「边界与局限」
   两个次级入口也在此。带 hash 的直链（#graph 等）跳过封面
@@ -120,8 +124,10 @@ hash 直连：`/#matrix`、`/#graph`、`/#graph:节点id`、`/#deep`、`/#bounds
 | `index.html` | 版壳与样式；ES module 载入 three@0.179 设全域 `THREE`，再动态载入依赖 |
 | `app.js` | 视图层（ForceGraph3D 交互、着色、谱系搜索、详情面板、modal） |
 | `data.js` | 主资料库：meta、stages、classes、cells、edges、deepdives、boundaries |
-| `nodes_*.js` | 各学科理论节点（soc/dev/econ/psy/pol/exi/anth/bio/fam，共 9 档，397 节点） |
-| `edges_new_a.js` / `edges_new_b.js` | 2024 扩充批次的边来源（**已合并进 data.js**，仅作 provenance 存档，页面不载入） |
+| `nodes_*.js` | 各学科理论节点（soc/dev/econ/psy/pol/exi/anth/bio/fam + 扩充批次，413 节点） |
+| `i18n.js` | 双语界面层：t()/setLang() + EN 字典（chrome/问卷/报告/型格），语料保持中文 |
+| `mascots.js` | 人生型格头像 SVG（open-peeps 风格，离线生成） |
+| `validate.mjs` | 数据完整性校验器（重复id/悬空边/枚举/注册清单）——提交前必跑 |
 | `citations.js` | OpenAlex 被引数（仅收录人工核对过的可靠匹配） |
 | `build_dist.py` | 单文件打包脚本 |
 | `dist/class-lifecourse-matrix.html` | 打包产物（勿手改） |
@@ -144,11 +150,11 @@ hash 直连：`/#matrix`、`/#graph`、`/#graph:节点id`、`/#deep`、`/#bounds
 - `aka`：常见简体中文译名/别名（空格分隔），搜索用
 - `detail`：300–600 字详解（核心概念、实证、与相连理论的关系、适用边界）
 - `links`：`[{t, u}]` 经查证的外部链接（DOI/出版社页），点击前弹确认 modal
-- 问卷打标字段（397/397 已全标）：
+- 问卷打标字段（413/413 已全标）：
   - `stages`：适用生命阶段子集 `["s1".."s4"]`，**省略 = 全阶段普适**
   - `classes`：适用阶层子集 `["c1".."c3"]`，**省略 = 全阶层普适**
   - `domains`：解释的生活域 1–3 个，取自 `money|work|family|health|meaning|relation|mobility`，必填
-  - `lever`：`1` = 含个体可操作的能动/破局机制，`0` = 纯结构/描述（397 节点中 53 个为 1）
+  - `lever`：`1` = 含个体可操作的能动/破局机制，`0` = 纯结构/描述
   - `gender`：`"f"|"m"` 仅标单一性别经验理论（17 个），其余省略
 
 ### 边（DB.edges）
@@ -178,8 +184,11 @@ hash 直连：`/#matrix`、`/#graph`、`/#graph:节点id`、`/#deep`、`/#bounds
 ## 验证
 
 ```bash
+# 数据完整性（推荐：重复id/悬空边/非法枚举/格位引用/注册清单漂移）
+node validate.mjs
+
 # 语法检查
-for f in nodes_*.js data.js app.js; do node --check "$f"; done
+for f in nodes_*.js data.js app.js i18n.js; do node --check "$f"; done
 
 # 结构检查（重复 id、悬空边/格引用、非法 type/ev、孤立节点）
 node -e "
@@ -202,3 +211,116 @@ console.log('dangling:',DB.edges.filter(e=>!DB.theories.some(t=>t.id===e.f)||!DB
 - 新增节点必须带 `detail`（300–600 字，说明理论+机制+实证+相连理由+边界）、
   `links`（web_search 查证过的真实 URL，禁编造）、`aka`（中文译名）。
 - 新增边必须写 `m`（150–230 字解释两边为何相连），type/ev 用既有枚举。
+- 提交前跑 `node validate.mjs`——它会拦下重复 id、悬空边、非法枚举、
+  格位失效引用和 index.html/build_dist.py 清单漂移。CI 见 `ci-workflow.yml.example`。
+
+---
+
+## English Documentation
+
+**Class × Life Course** is an interactive knowledge-graph app that helps users
+locate themselves structurally: a short, age-adaptive quiz places you in a
+matrix of **4 life stages × 3 class positions**, and the report explains where
+you stand, what is pressing on you, and where things might move — grounded in
+**413 theory nodes and 791 typed, evidence-graded relations** across 9
+disciplines. The core belief: *a lot of feeling "stuck" is structure, not
+personal failure.*
+
+Live demo: https://lifejourneywiththeory.netlify.app
+
+### Language
+
+- UI chrome is **bilingual** — toggle `中/EN` in the nav bar (persisted via
+  localStorage). Cover, nav, graph toolbar, quiz questions/options, report
+  scaffolding, verdict prose, 28 stage-aware suggestions, 32 archetype
+  names/mottos, and the share card all translate.
+- The **corpus stays Chinese-first**: theory `detail`, edge `m` texts, and
+  cell `mech/out` are Chinese. Every node carries an `en` name which surfaces
+  in English report items. Corpus translation is a separate, larger effort
+  (contributions welcome).
+
+### Quick start
+
+```bash
+# Option A — single file (shareable)
+open dist/class-lifecourse-matrix.html        # everything inlined, works offline
+
+# Option B — multi-file dev
+python3 -m http.server 8642                   # then http://localhost:8642/
+
+# Rebuild dist/ + site/ after any source change
+python3 build_dist.py
+
+# Data validation (run before committing node/edge changes)
+node validate.mjs
+```
+
+Hash routes: `/#matrix` `/#graph` `/#graph:<node-id>` `/#deep` `/#bounds` `/#data`.
+
+### Features
+
+- **Three graph views** — `Core` (60 landmark hubs by usage score), `Mainline`
+  (lineage backbone), `All` (full cloud). Core is default: landmarks first.
+- **3D force graph** — rotate/zoom/drag; lineage-aware highlighting; distance
+  label LOD in mainline mode; click-to-focus flies the camera *along your
+  current view direction* (no teleporting disorientation).
+- **Typed relations** — genealogy / produces / operationalizes / coupling /
+  tension, each with an evidence grade (`emp`/`obs`/`fw`/`nat`/`spec`) and a
+  150–230-char mechanism note explaining *why* the two theories connect.
+- **Node panel** — discipline & school badges, lineage chain (expandable,
+  year-sorted), sources with external-link confirmation, matrix cells, all
+  typed relations grouped; one-click Wikipedia lookup (zh summary via
+  wikidata cross-language alignment).
+- **Quiz → report** — SES synthesized from education / parents' education /
+  occupation / MacArthur ladder, Gaussian-mapped to class weights; stage-
+  adaptive question wording and option sets; domain pressure inference from
+  life events. Report gives a life-type card (32 variants), verdict prose,
+  three columns (structure / turning point / levers), and a "light my lineage
+  in the graph" action.
+- **Share card** — canvas-rendered 900×1300 PNG with mascot avatar (offline
+  SVG generation), top-3 theories, QR code.
+
+### Architecture
+
+| File | Purpose |
+|---|---|
+| `index.html` | shell + styles; loads three.js as ES module then deps |
+| `app.js` | view layer: graph, matrix, quiz, report, share card, wiki card |
+| `data.js` | main corpus: meta, stages, classes, cells, edges, deepdives, boundaries |
+| `nodes_*.js` | theory nodes by discipline (11 files, 413 nodes) |
+| `i18n.js` | bilingual layer: `t()`/`setLang()` + EN dictionaries |
+| `mascots.js` | archetype avatar SVG generator (offline) |
+| `citations.js` | manually verified OpenAlex citation counts |
+| `validate.mjs` | data-integrity checker (see below) |
+| `build_dist.py` | single-file + `site/` bundler |
+| `ci-workflow.yml.example` | GitHub Actions workflow — move to `.github/workflows/validate.yml` to enable |
+
+### Validation
+
+`node validate.mjs` fails (exit 1) on: duplicate node ids, missing required
+fields, invalid enum values, dangling/self-loop/mistyped edges, cell refs to
+nonexistent nodes, scripts present but unregistered in `index.html`, and
+`build_dist.py` file-list drift. Non-blocking warnings flag semi-orphan
+nodes (edges but no lineage-type edges), ≤2-member schools, thin details.
+
+### Schema (abridged)
+
+```js
+node: { id, cn, en, scholar, work, year, disc, school, core, detail,
+        aka, domains[1-3], stages?, classes?, gender?, lever, links[{t,u}] }
+edge: { f, t, type, label, m, ev, s }
+cell: { stage, cls, theories[id...], mech, out }
+```
+
+`stages`/`classes` omitted = universally applicable. `lever:1` marks nodes
+containing agency mechanisms (the "where you can move" column).
+
+### Contributing
+
+- New nodes need `detail` (300–600 chars: concept + mechanism + evidence +
+  relations + boundary), verified `links`, `aka` Chinese aliases.
+- New edges need `m` (150–230 chars explaining *why* these two connect) —
+  only add edges that are academically defensible; prefer correcting a wrong
+  edge type over forcing a weak lineage claim.
+- Run `node validate.mjs` and `python3 build_dist.py` before committing.
+- GPL-3.0 (bundled Trianglify is GPLv3); other vendored libs are MIT.
